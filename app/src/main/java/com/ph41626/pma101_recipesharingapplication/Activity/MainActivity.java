@@ -37,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String REALTIME_INSTRUCTIONS = "REALTIME_INSTRUCTIONS";
     public static final String REALTIME_RECIPES = "REALTIME_RECIPES";
 
+
     private MeowBottomNavigation bottom_navigation_main;
     private ViewPagerBottomNavigationMainAdapter bottom_navigation_main_adapter;
     private ViewPager2 view_pager_main;
