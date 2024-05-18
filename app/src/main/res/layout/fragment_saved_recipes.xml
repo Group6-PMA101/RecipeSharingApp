@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Fragment.SavedRecipesFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:animateLayoutChanges="true"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:gravity="center|top">
+            <LinearLayout
+                android:padding="24dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="top|center">
+                <!--                <include layout="@layout/layout_heading"/>-->
+                <TextView
+                    android:fontFamily="@font/be_vietnam_pro_semibold"
+                    android:textSize="24sp"
+                    android:layout_marginTop="12dp"
+                    android:id="@+id/textView_heading"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/black_333"
+                    android:text="Saved recipes"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:layout_marginTop="24dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/rcv_saved_recipes"/>
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

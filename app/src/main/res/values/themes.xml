@@ -1,0 +1,20 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.PMA101RecipeSharingApplication" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+    <style name="Theme.PMA101RecipeSharingApplication" parent="Base.Theme.PMA101RecipeSharingApplication" />
+    <style name="rounded_corner_12">
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="rounded_corner_16">
+        <item name="cornerSize">16dp</item>
+    </style>
+    <style name="AppCompatAlertDialogStyle" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/red_E00</item>
+        <item name="android:textColorPrimary">@color/black_333</item>
+        <item name="android:background">@color/white_000</item>
+    </style>
+</resources>

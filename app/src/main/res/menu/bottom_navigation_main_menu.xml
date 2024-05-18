@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/home_menu"
+        android:icon="@drawable/ic_home"
+        android:title="My Music"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/saved_recipes_menu"
+        android:icon="@drawable/ic_bookmark"
+        android:title="Download Music"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/create_recipe_menu"
+        android:icon="@drawable/ic_add"
+        android:title="Download Music"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/notification_menu"
+        android:icon="@drawable/ic_notification"
+        android:title="Download Music"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/profile_menu"
+        android:icon="@drawable/ic_user"
+        android:title="Download Music"
+        app:showAsAction="never"/>
+</menu>

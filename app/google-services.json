@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "499372406379",
+    "project_id": "pma101---nhom6",
+    "storage_bucket": "pma101---nhom6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499372406379:android:cdc0740d5668992ecae32e",
+        "android_client_info": {
+          "package_name": "com.ph41626.pma101_recipesharingapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxtgogoOlM-us-domdcdghYghh1jNuOJo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
