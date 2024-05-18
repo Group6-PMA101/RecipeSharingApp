@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
         initUI();
         BottomNavigationManager();
-        //GetDataFromFireBase();
+        GetDataFromFireBase();
     }
 
     private void GetDataFromFireBase() {
