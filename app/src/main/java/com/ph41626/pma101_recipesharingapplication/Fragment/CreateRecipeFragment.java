@@ -160,6 +160,7 @@ public class CreateRecipeFragment extends Fragment {
         newRecipe.setId(RandomID());
         SetupButtonListeners();
         RecyclerManager();
+        //Update
 
         return view;
     }
