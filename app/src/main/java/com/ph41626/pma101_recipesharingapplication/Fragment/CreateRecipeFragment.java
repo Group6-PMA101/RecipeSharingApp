@@ -142,7 +142,7 @@ public class CreateRecipeFragment extends Fragment {
 
     private int current_instruction_pos = -1;
     private boolean isThumbnailRecipeChosen = false;
-    private String specialCharacters = "[^a-zA-Z0-9 ,.;-]";
+    private String specialCharacters = "[^a-zA-Z0-9 ,.;-À-ÿ]";
 
     private StorageReference storageReference;
     private DatabaseReference

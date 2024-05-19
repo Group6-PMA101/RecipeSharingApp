@@ -1,9 +1,12 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
@@ -14,6 +17,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationMainAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
+import com.ph41626.pma101_recipesharingapplication.Model.User;
+import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
@@ -36,11 +41,15 @@ public class MainActivity extends AppCompatActivity {
     public static final String REALTIME_INGREDIENTS = "REALTIME_INGREDIENTS";
     public static final String REALTIME_INSTRUCTIONS = "REALTIME_INSTRUCTIONS";
     public static final String REALTIME_RECIPES = "REALTIME_RECIPES";
-
+    public static final String REALTIME_USERS = "REALTIME_USERS";
 
     private MeowBottomNavigation bottom_navigation_main;
     private ViewPagerBottomNavigationMainAdapter bottom_navigation_main_adapter;
     private ViewPager2 view_pager_main;
+
+    private User currentUser = new User();
+    private FirebaseUtils firebaseUtils;
+    private ViewModel viewModel;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +58,21 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         BottomNavigationManager();
         GetDataFromFireBase();
+
+        Intent intent = getIntent();
+        String email = intent.getStringExtra("email");
+        firebaseUtils.getUserByEmail(REALTIME_USERS, email, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUser = snapshot.getValue(User.class);
+                viewModel.changeCurrentUser(currentUser);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void GetDataFromFireBase() {
@@ -141,6 +165,7 @@ public class MainActivity extends AppCompatActivity {
         bottom_navigation_main = findViewById(R.id.bottomNavigationMain);
         view_pager_main = findViewById(R.id.viewPagerMain);
         bottom_navigation_main_adapter = new ViewPagerBottomNavigationMainAdapter(this);
-
+        firebaseUtils = new FirebaseUtils();
+        viewModel = new ViewModelProvider(this).get(ViewModel.class);
     }
 }

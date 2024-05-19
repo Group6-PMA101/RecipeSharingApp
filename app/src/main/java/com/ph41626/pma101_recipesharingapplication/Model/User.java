@@ -13,14 +13,14 @@ public class User {
     public User() {
     }
 
-    public User(String id, String name, String email, String password, int accountType, String mediaId) {
+    public User(String id, String name, String email, String password, int accountType) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.password = password;
         this.isStatus = false;
         this.accountType = accountType;
-        this.mediaId = mediaId;
+        this.mediaId = "";
         this.followersCount = 0;
         this.followingCount = 0;
     }
@@ -95,5 +95,20 @@ public class User {
 
     public void setFollowingCount(int followingCount) {
         this.followingCount = followingCount;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", isStatus=" + isStatus +
+                ", accountType=" + accountType +
+                ", mediaId='" + mediaId + '\'' +
+                ", followersCount=" + followersCount +
+                ", followingCount=" + followingCount +
+                '}';
     }
 }
