@@ -89,7 +89,7 @@
             android:id="@+id/password_requirements_textview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Password must be at least 8 characters with 1 uppercase and 1 lowercase letter."
+            android:text="Password must be at least 8 characters with 1 uppercase letter and 1 digit."
             android:textColor="@color/white_000"
             android:textSize="14sp"/>
         <Spinner

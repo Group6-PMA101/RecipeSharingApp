@@ -133,8 +133,8 @@ public class SignUpActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!password.matches(".*[a-z].*")) {
-            passwordEditText.setError("Password must contain at least one lowercase letter!");
+        if (!password.matches(".*\\d.*")) {
+            passwordEditText.setError("Password must contain at least one digit!");
             return false;
         }
 
