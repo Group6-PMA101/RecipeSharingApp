@@ -16,6 +16,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PMA101RecipeSharingApplication"
         tools:targetApi="31">
+
+        <activity
+            android:name=".Activity.SignUpScreen"
+            android:exported="true" />
+        <activity
+            android:name=".Activity.SignInScreen"
+            android:exported="true" />
         <activity
             android:name=".Activity.SplashActivity"
             android:exported="false" />
