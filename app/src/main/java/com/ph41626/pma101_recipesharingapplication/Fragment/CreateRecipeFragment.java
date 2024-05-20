@@ -343,7 +343,7 @@ public class CreateRecipeFragment extends Fragment {
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
 
         allOf.thenRun(() -> {
-            //Toast.makeText(getContext(), "All tasks completed.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Create Completed.", Toast.LENGTH_SHORT).show();
             ResetData();
             progressDialog.dismiss();
         }).exceptionally(e -> {
@@ -538,7 +538,7 @@ public class CreateRecipeFragment extends Fragment {
     }
     public void ChooseImage(Instruction instruction, int pos) {
         if (instruction != null && pos != -1) {
-            if (instructionList != null && instructionList.size() == 3) {
+            if (instruction != null && instruction.getMediaIds().size() == 3) {
                 Toast.makeText(getContext(), "You can only add up to 3 images for each step!", Toast.LENGTH_SHORT).show();
                 return;
             }
