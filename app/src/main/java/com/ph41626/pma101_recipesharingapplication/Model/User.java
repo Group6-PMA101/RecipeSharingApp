@@ -1,6 +1,8 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private String id;
     private String name;
     private String email;

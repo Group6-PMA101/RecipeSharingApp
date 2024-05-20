@@ -56,23 +56,15 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initUI();
+        GetUser();
         BottomNavigationManager();
-        GetDataFromFireBase();
+//        GetDataFromFireBase();
+    }
 
+    private void GetUser() {
         Intent intent = getIntent();
-        String email = intent.getStringExtra("email");
-        firebaseUtils.getUserByEmail(REALTIME_USERS, email, new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                currentUser = snapshot.getValue(User.class);
-                viewModel.changeCurrentUser(currentUser);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+        currentUser = (User) intent.getSerializableExtra("user");
+        viewModel.changeCurrentUser(currentUser);
     }
 
     private void GetDataFromFireBase() {
@@ -115,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
         view_pager_main.setUserInputEnabled(false);
         bottom_navigation_main.add(new MeowBottomNavigation.Model(0, R.drawable.ic_home));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(1, R.drawable.ic_bookmark));
-        bottom_navigation_main.add(new MeowBottomNavigation.Model(2, R.drawable.ic_add));
+        if (currentUser.getAccountType() != 0) bottom_navigation_main.add(new MeowBottomNavigation.Model(2, R.drawable.ic_add));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(3, R.drawable.ic_notification));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(4, R.drawable.ic_user));
         bottom_navigation_main.show(0,true);
@@ -126,31 +118,31 @@ public class MainActivity extends AppCompatActivity {
                 switch (model.getId()) {
                     case 0:
                         if (current_fragment != FRAGMENT_HOME) {
-                            view_pager_main.setCurrentItem(0);
+                            view_pager_main.setCurrentItem(0,false);
                             current_fragment = FRAGMENT_HOME;
                         }
                         break;
                     case 1:
                         if (current_fragment != FRAGMENT_SAVED_RECIPES) {
-                            view_pager_main.setCurrentItem(1);
+                            view_pager_main.setCurrentItem(1,false);
                             current_fragment = FRAGMENT_SAVED_RECIPES;
                         }
                         break;
                     case 2:
                         if (current_fragment != FRAGMENT_CREATE_RECIPE) {
-                            view_pager_main.setCurrentItem(2);
+                            view_pager_main.setCurrentItem(2,false);
                             current_fragment = FRAGMENT_CREATE_RECIPE;
                         }
                         break;
                     case 3:
                         if (current_fragment != FRAGMENT_NOTIFICATIONS) {
-                            view_pager_main.setCurrentItem(3);
+                            view_pager_main.setCurrentItem(3,false);
                             current_fragment = FRAGMENT_NOTIFICATIONS;
                         }
                         break;
                     case 4:
                         if (current_fragment != FRAGMENT_PROFILE) {
-                            view_pager_main.setCurrentItem(4);
+                            view_pager_main.setCurrentItem(4,false);
                             current_fragment = FRAGMENT_PROFILE;
                         }
                         break;

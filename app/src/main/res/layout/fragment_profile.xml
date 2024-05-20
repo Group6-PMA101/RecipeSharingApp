@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".Fragment.ProfileFragment">
 
     <ScrollView
@@ -21,13 +22,16 @@
                     android:src="@drawable/profile_banner"
                     android:scaleType="centerCrop"/>
                 <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/img_avatar_user"
                     android:layout_width="150dp"
                     android:layout_height="150dp"
                     android:src="@drawable/default_avatar"
+                    app:shapeAppearance="@style/rounded_corner_50"
                     android:layout_alignParentBottom="true"
                     android:layout_centerHorizontal="true"/>
             </RelativeLayout>
             <TextView
+                android:id="@+id/tv_name_user"
                 android:layout_marginTop="24dp"
                 android:textSize="18sp"
                 android:textColor="@color/red_E00"
@@ -56,6 +60,7 @@
                         android:fontFamily="@font/be_vietnam_pro_regular"
                         android:textColor="@color/white_9A9"/>
                     <TextView
+                        android:id="@+id/tv_recipes_count_user"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"
@@ -76,13 +81,15 @@
                         android:textSize="14sp"
                         android:fontFamily="@font/be_vietnam_pro_regular"
                         android:textColor="@color/white_9A9"/>
+
                     <TextView
+                        android:id="@+id/tv_follower_count_user"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="20sp"
                         android:fontFamily="@font/be_vietnam_pro_semibold"
-                        android:textColor="@color/black_333"/>
+                        android:text="0"
+                        android:textColor="@color/black_333"
+                        android:textSize="20sp" />
                 </LinearLayout>
                 <LinearLayout
                     android:layout_width="0dp"
@@ -98,6 +105,7 @@
                         android:fontFamily="@font/be_vietnam_pro_regular"
                         android:textColor="@color/white_9A9"/>
                     <TextView
+                        android:id="@+id/tv_following_count_user"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="0"

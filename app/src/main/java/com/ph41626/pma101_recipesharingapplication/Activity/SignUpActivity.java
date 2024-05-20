@@ -87,8 +87,9 @@ public class SignUpActivity extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(SignUpActivity.this, "Create account successful!", Toast.LENGTH_SHORT).show();
-                                    Intent i = new Intent(SignUpActivity.this, SignInActivity.class);
-                                    startActivity(i);
+//                                    Intent i = new Intent(SignUpActivity.this, SignInActivity.class);
+//                                    startActivity(i);
+                                    finish();
                                 } else {
                                     Toast.makeText(SignUpActivity.this, "Failed to create account!" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }

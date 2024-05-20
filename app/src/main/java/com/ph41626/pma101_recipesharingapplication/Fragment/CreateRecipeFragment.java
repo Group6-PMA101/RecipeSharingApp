@@ -142,7 +142,7 @@ public class CreateRecipeFragment extends Fragment {
 
     private int current_instruction_pos = -1;
     private boolean isThumbnailRecipeChosen = false;
-    private String specialCharacters = "[^a-zA-Z0-9 ,.;-À-ÿ]";
+    private String specialCharacters = "[^\"]+";
 
     private StorageReference storageReference;
     private DatabaseReference
@@ -358,8 +358,8 @@ public class CreateRecipeFragment extends Fragment {
     }
     private boolean ValidateRecipe(String name) {
         if (!ValidateMedia()) return false;
-        if (!ValidateIngredientsAndInstructions()) return false;
         if (!ValidateName(name)) return false;
+        if (!ValidateIngredientsAndInstructions()) return false;
         if (!ValidateIngredientsList()) return false;
         if (!ValidateInstructionsList()) return false;
         return true;
@@ -385,7 +385,7 @@ public class CreateRecipeFragment extends Fragment {
             return false;
         }
 
-        if (name.matches(".*" + specialCharacters + ".*")) {
+        if (!name.matches(".*" + specialCharacters + ".*")) {
             edt_name.setError("Name cannot contain special characters!");
             return false;
         }
@@ -399,7 +399,7 @@ public class CreateRecipeFragment extends Fragment {
                 ingredient_adapter.notifyItemChanged(i);
                 return false;
             }
-            if (ingredient.getName().matches(".*" + specialCharacters + ".*")) {
+            if (!ingredient.getName().matches(".*" + specialCharacters + ".*")) {
                 isCheck = false;
                 break;
             }
@@ -417,13 +417,14 @@ public class CreateRecipeFragment extends Fragment {
                 instruction_adapter.notifyItemChanged(i);
                 return false;
             }
-            if (instruction.getContent().matches(".*" + specialCharacters + ".*")) {
+            if (!instruction.getContent().matches(".*" + specialCharacters + ".*")) {
                 isCheck = false;
                 break;
             }
         }
         if (!isCheck) {
             Toast.makeText(getContext(), "Name cannot contain special characters!", Toast.LENGTH_SHORT).show();
+            return false;
         }
         return true;
     }

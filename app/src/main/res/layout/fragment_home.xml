@@ -30,7 +30,8 @@
                 android:paddingHorizontal="12dp"
                 android:drawableStart="@drawable/ic_search"
                 android:drawablePadding="8dp"
-                android:fontFamily="@font/be_vietnam_pro_regular"
+                android:textSize="14sp"
+                android:fontFamily="@font/be_vietnam_pro_light"
                 android:textColor="@color/black_333"/>
             <LinearLayout
                 android:layout_marginTop="12dp"
@@ -74,7 +75,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Recent recipe"
+                    android:text="Top 100 recipes"
                     android:fontFamily="@font/be_vietnam_pro_semibold"
                     android:textSize="20sp"
                     android:textColor="@color/black_333"/>

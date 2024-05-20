@@ -1,5 +1,7 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -19,7 +21,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 public class SignInActivity extends AppCompatActivity {
 
@@ -125,15 +132,29 @@ public class SignInActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             savePreferences();
-                            Toast.makeText(SignInActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(SignInActivity.this, MainActivity.class);
-                            intent.putExtra("email",email);
-                            startActivity(intent);
-                            finish();
+
+                            new FirebaseUtils().getUserByEmail(REALTIME_USERS, email, new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    User user = snapshot.getValue(User.class);
+                                    Toast.makeText(SignInActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
+                                    Intent intent = new Intent(SignInActivity.this, MainActivity.class);
+                                    intent.putExtra("user", user);
+                                    startActivity(intent);
+                                    finish();
+                                    progressDialog.dismiss();
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                                    progressDialog.dismiss();
+                                }
+                            });
                         } else {
                             Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
                         }
-                        progressDialog.dismiss();
                     }
                 });
     }
