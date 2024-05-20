@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,7 +56,9 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewRecipeTrendingAdapter.ViewHolder holder, int position) {
         if (getItemViewType(position) == VIEW_TYPE_ITEM) {
-            
+            Recipe recipe = recipes.get(position);
+            holder.tv_recipe_name.setText(recipe.getName());
+            holder.tv_recipe_owner.setText(recipe.getUserId());
         }
     }
 
@@ -64,9 +68,12 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-
+        TextView tv_recipe_name,tv_recipe_owner;
+        ImageView img_recipe_thumbnail;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            tv_recipe_owner = itemView.findViewById(R.id.tv_recipe_owner);
+            tv_recipe_name = itemView.findViewById(R.id.tv_recipe_name);
         }
     }
 }

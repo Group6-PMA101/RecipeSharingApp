@@ -56,6 +56,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewIngredientAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewInstructionAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
@@ -144,6 +145,8 @@ public class CreateRecipeFragment extends Fragment {
     private boolean isThumbnailRecipeChosen = false;
     private String specialCharacters = "[^\"]+";
 
+    private MainActivity mainActivity;
+
     private StorageReference storageReference;
     private DatabaseReference
             databaseReferenceMedias,
@@ -227,7 +230,7 @@ public class CreateRecipeFragment extends Fragment {
                     newRecipe.setLastUpdateDate(newDate);
                     newRecipe.setTotalReviews(0);
                     newRecipe.setAverageRating(0);
-                    //newRecipe.setUserId();
+                    newRecipe.setUserId(mainActivity.getCurrentUser().getId());
                     progressDialog.setMessage("Please wait...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();
@@ -717,5 +720,7 @@ public class CreateRecipeFragment extends Fragment {
         edt_name = view.findViewById(R.id.edt_name);
         rcv_ingredient = view.findViewById(R.id.rcv_ingredient);
         rcv_instruction = view.findViewById(R.id.rcv_instruction);
+
+        mainActivity = (MainActivity) getActivity();
     }
 }

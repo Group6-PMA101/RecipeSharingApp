@@ -48,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager2 view_pager_main;
 
     private User currentUser = new User();
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setCurrentUser(User currentUser) {
+        this.currentUser = currentUser;
+    }
+
     private FirebaseUtils firebaseUtils;
     private ViewModel viewModel;
     @Override
