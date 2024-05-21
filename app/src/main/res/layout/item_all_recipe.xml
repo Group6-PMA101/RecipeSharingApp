@@ -1,48 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingRight="12dp"
+    android:layout_width="match_parent"
+    android:layout_height="220dp"
+    android:paddingVertical="12dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            app:shapeAppearance="@style/rounded_corner_12"
+            android:src="@color/white_1C1"
+            android:scaleType="centerCrop"
+            android:id="@+id/img_recipe_thumbnail"/>
+        <ProgressBar
+            android:id="@+id/pb_load_img"
+            android:indeterminateTint="@color/red_E00"
+            android:layout_centerInParent="true"
+            android:layout_width="32dp"
+            android:layout_height="32dp"/>
+    </RelativeLayout>
+    <RelativeLayout
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="120dp"
+        android:background="@drawable/cus_bgr_gradient_black_tran"/>
     <LinearLayout
-        android:layout_width="280dp"
-        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
         android:orientation="vertical">
-        <RelativeLayout
-            android:layout_width="280dp"
-            android:layout_height="wrap_content">
-            <com.google.android.material.imageview.ShapeableImageView
-                android:layout_width="280dp"
-                android:layout_height="180dp"
-                android:src="@color/white_1C1"
-                android:id="@+id/img_recipe_thumbnail"
-                app:shapeAppearance="@style/rounded_corner_12"
-                android:scaleType="centerCrop"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
             <LinearLayout
-                android:visibility="gone"
-                android:id="@+id/btn_play"
-                android:layout_centerInParent="true"
-                android:gravity="center"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:background="@drawable/cus_bgr_rounded_corner_16"
-                android:backgroundTint="@color/white_000">
-                <ImageView
-                    android:layout_marginLeft="2dp"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/ic_play"
-                    android:backgroundTint="@color/red_E00"/>
-            </LinearLayout>
-            <ProgressBar
-                android:id="@+id/pb_load_img"
-                android:indeterminateTint="@color/red_E00"
-                android:layout_centerInParent="true"
-                android:layout_width="32dp"
-                android:layout_height="32dp"/>
-            <LinearLayout
-                android:layout_marginTop="6dp"
-                android:layout_marginLeft="6dp"
                 android:background="@drawable/cus_bgr_rounded_corner_10"
                 android:backgroundTint="@color/white_030_CC"
                 android:layout_width="wrap_content"
@@ -60,17 +53,18 @@
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="4,5"
+                    android:text="5"
                     android:textSize="10sp"
                     android:textColor="@color/white_000"
                     android:fontFamily="@font/be_vietnam_pro_semibold"
                     android:padding="6dp"/>
             </LinearLayout>
             <RelativeLayout
-                android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
-                android:layout_marginTop="6dp"
-                android:layout_marginRight="6dp"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"/>
+            <RelativeLayout
+                android:id="@+id/btn_more"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/cus_bgr_rounded_corner_16"
@@ -79,55 +73,34 @@
                     android:layout_centerInParent="true"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:background="@drawable/ic_bookmark"
-                    android:backgroundTint="@color/black_333"/>
+                    android:background="@drawable/ic_more"
+                    android:backgroundTint="@color/red_E00"/>
             </RelativeLayout>
-        </RelativeLayout>
-        <LinearLayout
-            android:layout_marginTop="6dp"
-            android:layout_width="280dp"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <TextView
-                android:id="@+id/tv_recipe_name"
-                android:layout_marginRight="24dp"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Recipe Name"
-                android:fontFamily="@font/be_vietnam_pro_semibold"
-                android:textColor="@color/black_333"
-                android:ellipsize="end"
-                android:singleLine="true"/>
-            <ImageView
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:backgroundTint="@color/black_333"
-                android:background="@drawable/ic_more"/>
         </LinearLayout>
-        <LinearLayout
-            android:layout_marginTop="12dp"
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+        <TextView
+            android:id="@+id/tv_recipe_name"
+            android:layout_width="182dp"
+            android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:fontFamily="@font/be_vietnam_pro_semibold"
+            android:textSize="16sp"
+            android:text="Recipe Name"
+            android:textColor="@color/white_000"/>
+        <TextView
+            android:id="@+id/tv_recipe_ingredients_cook_time"
+            android:layout_marginTop="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/img_user_avatar"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                app:shapeAppearance="@style/rounded_corner_16"
-                android:src="@drawable/default_avatar"/>
-            <TextView
-                android:id="@+id/tv_recipe_owner"
-                android:layout_marginLeft="12dp"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="User"
-                android:fontFamily="@font/be_vietnam_pro_regular"
-                android:textColor="@color/white_9A9"
-                android:ellipsize="end"
-                android:singleLine="true"/>
-        </LinearLayout>
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:fontFamily="@font/be_vietnam_pro_regular"
+            android:textSize="12sp"
+            android:text="0 Ingredients | 0 min"
+            android:textColor="@color/white_000"/>
     </LinearLayout>
 </RelativeLayout>

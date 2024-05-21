@@ -32,6 +32,7 @@ import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -79,15 +80,10 @@ public class AllRecipesFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-    private ArrayList<Recipe> recipes = new ArrayList<>();
     private RecyclerView rcv_all_recipes;
     private ViewModel viewModel;
     private RecyclerViewAllRecipeAdapter allRecipeAdapter;
-
-    public HashMap<String, Media> recipeMedias = new HashMap<>();
-    public HashMap<String, ArrayList<Ingredient>> recipeIngredients = new HashMap<>();
-    public HashMap<String, ArrayList<Instruction>> recipeInstructions = new HashMap<>();
-    public HashMap<String, ArrayList<Media>> instructionMedias = new HashMap<>();
+    public ProfileFragment profileFragment;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -99,85 +95,20 @@ public class AllRecipesFragment extends Fragment {
         viewModel.getAllRecipeByChef().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {
             @Override
             public void onChanged(ArrayList<Recipe> recipes) {
-                UpdateUI(recipes);
+               UpdateUI(recipes);
 
-                for (int i = 0; i < recipes.size(); i++) {
-                    fetchMediaForRecipe(recipes.get(i),i);
-                }
             }
         });
 
         return view;
     }
 
-    private void fetchMediaForRecipe(Recipe recipe,int pos) {
-        new FirebaseUtils().getDataFromFirebaseById(MainActivity.REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Media media = snapshot.getValue(Media.class);
-                recipeMedias.put(recipe.getId(),media);
-                fetchIngredientForRecipe(recipe,pos);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void fetchIngredientForRecipe(Recipe recipe,int pos) {
-        new FirebaseUtils().getAllDataByKey(REALTIME_INGREDIENTS, "recipeId", recipe.getId(), new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<Ingredient> ingredients = new ArrayList<>();
-                for (DataSnapshot child:snapshot.getChildren()) {
-                    Ingredient ingredient = child.getValue(Ingredient.class);
-                    ingredients.add(ingredient);
-                }
-                recipeIngredients.put(recipe.getId(),ingredients);
-                allRecipeAdapter.notifyItemChanged(pos);
-//                fetchInstructionForRecipe(recipe);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void fetchInstructionForRecipe(Recipe recipe) {
-        new FirebaseUtils().getAllDataByKey(REALTIME_INSTRUCTIONS, "recipeId", recipe.getId(), new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<Instruction> instructions = new ArrayList<>();
-                for (DataSnapshot child:snapshot.getChildren()) {
-                    Instruction instruction = child.getValue(Instruction.class);
-                    instructions.add(instruction);
-                }
-                recipeInstructions.put(recipe.getId(),instructions);
-                fetchMediaForInstruction(recipe);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void fetchMediaForInstruction(Recipe recipe) {
-
-    }
-
     private void UpdateUI(ArrayList<Recipe> recipes) {
-        this.recipes = recipes;
         allRecipeAdapter.Update(recipes);
     }
 
     private void RecyclerViewManager() {
-        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),recipes,this);
+        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
         rcv_all_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
         rcv_all_recipes.setAdapter(allRecipeAdapter);
         rcv_all_recipes.setNestedScrollingEnabled(true);
@@ -186,5 +117,12 @@ public class AllRecipesFragment extends Fragment {
     private void initUI(View view) {
         rcv_all_recipes = view.findViewById(R.id.rcv_all_recipes);
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
+        List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
+        for (Fragment fragment : fragments) {
+            if (fragment instanceof ProfileFragment) {
+                profileFragment = (ProfileFragment) fragment;
+                break;
+            }
+        }
     }
 }

@@ -1,5 +1,7 @@
 package com.ph41626.pma101_recipesharingapplication.Fragment;
 
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INGREDIENTS;
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INSTRUCTIONS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
 
@@ -11,6 +13,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,6 +23,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.database.DataSnapshot;
@@ -27,6 +31,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationRecipeAdapter;
+import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
+import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
@@ -35,6 +41,7 @@ import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -91,11 +98,18 @@ public class ProfileFragment extends Fragment {
     private TextView tv_name_user, tv_recipes_count_user, tv_follower_count_user, tv_following_count_user;
     private MainActivity mainActivity;
     private ViewModel viewModel;
-    private ArrayList<Recipe> recipes = new ArrayList<>();
+    public ArrayList<Recipe> recipes = new ArrayList<>();
     private User currentUser = new User();
     private Media currentMedia = new Media();
     private ViewPager2 viewPager2_recipe;
     private BottomNavigationView bottomNavigationView;
+    public HashMap<String, Media> recipeMedias = new HashMap<>();
+    public HashMap<String, ArrayList<Ingredient>> recipeIngredients = new HashMap<>();
+    public HashMap<String, ArrayList<Instruction>> recipeInstructions = new HashMap<>();
+    public HashMap<String, ArrayList<Media>> instructionMedias = new HashMap<>();
+
+    private int totalTasks = 0;
+    private int completedTasks = 0;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -103,30 +117,21 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         initUI(view);
-
+//        GetRecipeByUser();
         UpdateUiWhenDataChange();
-        GetRecipeByUser();
         BottomNavigationManager();
+        viewModel.getAllRecipeByChef().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {
+            @Override
+            public void onChanged(ArrayList<Recipe> recipes) {
+
+            }
+        });
 
         return view;
     }
     private void BottomNavigationManager() {
         ViewPagerBottomNavigationRecipeAdapter bottomNavigationAdapter = new ViewPagerBottomNavigationRecipeAdapter(getActivity());
         viewPager2_recipe.setAdapter(bottomNavigationAdapter);
-//        viewPager2_recipe.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-//            @Override
-//            public void onPageSelected(int position) {
-//                super.onPageSelected(position);
-//                switch (position) {
-//                    case 0: bottomNavigationView.getMenu().findItem(R.id.allRecipe).setChecked(true);
-//                        break;
-//                    case 1: bottomNavigationView.getMenu().findItem(R.id.sharedRecipe).setChecked(true);
-//                        break;
-//                    case 2: bottomNavigationView.getMenu().findItem(R.id.unsharedRecipe).setChecked(true);
-//                        break;
-//                }
-//            }
-//        });
         bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -150,18 +155,34 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+    public void UpdateSharedRecipe(Recipe recipe) {
+        new FirebaseUtils().UpdateRecipeShare(REALTIME_RECIPES, recipe.getId(), recipe.isPublic(), new OnSuccessListener() {
+            @Override
+            public void onSuccess(Object o) {
+                if (recipe.isPublic()) {
+                    Toast.makeText(mainActivity, "Share successfully!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(mainActivity, "Share canceled!", Toast.LENGTH_SHORT).show();
+                }
+//                GetRecipeByUser();
+            }
+        });
+    }
     private void GetRecipeByUser() {
         if (currentUser.getAccountType() == 0) return;
-        new FirebaseUtils().getAllDataByKey(REALTIME_RECIPES, "userId", currentUser.getId(), new ValueEventListener() {
+        new FirebaseUtils().getAllDataByKeyRealTime(REALTIME_RECIPES, "userId", currentUser.getId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 recipes.clear();
+                int index = 0;
                 for (DataSnapshot recipeSnapshot:snapshot.getChildren()) {
                     Recipe recipe = recipeSnapshot.getValue(Recipe.class);
                     recipes.add(recipe);
+                    totalTasks++;
+                    fetchMediaForRecipe(recipe,index);
+                    index++;
                 }
                 tv_recipes_count_user.setText(String.valueOf(recipes.size()));
-                viewModel.changeAllRecipeByChef(recipes);
             }
 
             @Override
@@ -169,7 +190,6 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
-
     private void UpdateUiWhenDataChange() {
         viewModel.getChangeDateCurrentUser().observe(getViewLifecycleOwner(), new Observer<User>() {
             @Override
@@ -179,11 +199,114 @@ public class ProfileFragment extends Fragment {
             }
         });
     }
+    private void fetchMediaForRecipe(Recipe recipe,int pos) {
+//        if (recipeMedias.containsKey(recipe.getId()) &&
+//        recipeMedias.get(recipe.getId()) != null) {
+//            fetchIngredientForRecipe(recipe,pos);
+//            return;
+//        }
+        new FirebaseUtils().getDataFromFirebaseById(MainActivity.REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Media media = snapshot.getValue(Media.class);
+                recipeMedias.put(recipe.getId(),media);
+                completedTasks++;
+                totalTasks++;
+                fetchIngredientForRecipe(recipe,pos);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchIngredientForRecipe(Recipe recipe,int pos) {
+//        if (recipeIngredients.containsKey(recipe.getId()) &&
+//        recipeIngredients.get(recipe.getId()) != null) {
+//            fetchInstructionForRecipe(recipe);
+//            return;
+//        }
+        new FirebaseUtils().getAllDataByKey(REALTIME_INGREDIENTS, "recipeId", recipe.getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<Ingredient> ingredients = new ArrayList<>();
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    Ingredient ingredient = child.getValue(Ingredient.class);
+                    ingredients.add(ingredient);
+                }
+                recipeIngredients.put(recipe.getId(),ingredients);
+//                allRecipeAdapter.notifyItemChanged(pos);
+                completedTasks++;
+                totalTasks++;
+                fetchInstructionForRecipe(recipe);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchInstructionForRecipe(Recipe recipe) {
+//        if (recipeInstructions.containsKey(recipe.getId()) &&
+//        recipeInstructions.get(recipe.getId()) != null) {
+//
+//        }
+        new FirebaseUtils().getAllDataByKey(REALTIME_INSTRUCTIONS, "recipeId", recipe.getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<Instruction> instructions = new ArrayList<>();
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    Instruction instruction = child.getValue(Instruction.class);
+                    instructions.add(instruction);
+                }
+                completedTasks++;
+                totalTasks++;
+                recipeInstructions.put(recipe.getId(),instructions);
+                fetchMediaForInstruction(recipe);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchMediaForInstruction(Recipe recipe) {
+        for (int i = 0; i < recipeInstructions.get(recipe.getId()).size(); i++) {
+            Instruction instruction = recipeInstructions.get(recipe.getId()).get(i);
+            new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, instruction.getId(), new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    ArrayList<Media> medias = new ArrayList<>();
+                    for (DataSnapshot child:snapshot.getChildren()) {
+                        Media media = child.getValue(Media.class);
+                        medias.add(media);
+                    }
+                    completedTasks++;
+                    instructionMedias.put(instruction.getId(),medias);
+                    CheckAllTaskCompleted();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+    private void CheckAllTaskCompleted() {
+        Toast.makeText(mainActivity, totalTasks + " - " + completedTasks, Toast.LENGTH_SHORT).show();
+        if (totalTasks == completedTasks) {
+            viewModel.changeAllRecipeByChef(recipes);
+            totalTasks = 0;
+            completedTasks = 0;
+        }
+    }
     private void UpdateUi(User user) {
         if (user.getMediaId() == null) {
             img_avatar_user.setImageResource(R.drawable.default_avatar);
-
         } else {
             new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {
                 @Override
