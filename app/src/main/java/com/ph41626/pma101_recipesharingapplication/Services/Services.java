@@ -19,15 +19,19 @@ import android.widget.LinearLayout;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
+import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.R;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class Services {
     public static String RandomID() {return UUID.randomUUID().toString();}
     public static Ingredient CreateNewIngredient() {
-        return new Ingredient(RandomID().toString(),"",0);
+        return new Ingredient(RandomID().toString(),"","",0);
     }
     public static Instruction CreateNewInstruction() {
         return new Instruction(RandomID().toString(),"","",new ArrayList<>(),0);
@@ -49,8 +53,22 @@ public class Services {
                 if (instruction.getId().equals(id)) {
                     return item;
                 }
+            } else if (item instanceof User) {
+                User user = (User) item;
+                if (user.getId().equals(id)) {
+                    return item;
+                }
             }
         }
         return null;
+    }
+    public static boolean isVideoMimeType(String mimeType) {
+        return mimeType.startsWith("video/");
+    }
+    public static String getMimeType(String url) throws IOException {
+        URLConnection connection = new URL(url).openConnection();
+        connection.connect();
+        String mimeType = connection.getContentType();
+        return mimeType;
     }
 }

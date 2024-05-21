@@ -168,6 +168,9 @@ public class CreateRecipeFragment extends Fragment {
         return view;
     }
     private void ResetData() {
+        newRecipe = new Recipe();
+        newRecipe.setId(RandomID());
+
         mediaList.clear();
         ingredientList.clear();
         ingredientList.add(CreateNewIngredient());
@@ -180,8 +183,7 @@ public class CreateRecipeFragment extends Fragment {
         tv_cook_time.setText("0 min");
         edt_name.setText("");
         img_thumbnail_recipe.setImageResource(R.color.white_1C1);
-        newRecipe = new Recipe();
-        newRecipe.setId(RandomID());
+
         current_instruction = null;
         current_instruction_pos = -1;
         isThumbnailRecipeChosen = false;
@@ -254,7 +256,9 @@ public class CreateRecipeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (view.hasFocus()) view.clearFocus();
-                ingredientList.add(CreateNewIngredient());
+                Ingredient newIngredient = CreateNewIngredient();
+                newIngredient.setRecipeId(newRecipe.getId());
+                ingredientList.add(newIngredient);
                 ingredient_adapter.UpdateData(true, ingredientList, ingredientList.size());
             }
         });
@@ -610,7 +614,11 @@ public class CreateRecipeFragment extends Fragment {
         }
     }
     private void RecyclerManager() {
-        ingredientList.add(CreateNewIngredient());
+        Ingredient newIngredient = CreateNewIngredient();
+        newIngredient.setRecipeId(newRecipe.getId());
+        ingredientList.add(newIngredient);
+        Instruction instruction = CreateNewInstruction();
+        instruction.setRecipeId(newRecipe.getId());
         instructionList.add(CreateNewInstruction());
 
         ingredient_adapter = new RecyclerViewIngredientAdapter(

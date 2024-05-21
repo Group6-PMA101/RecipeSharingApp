@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
         android:layout_width="280dp"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical">
         <RelativeLayout
             android:layout_width="280dp"
@@ -14,11 +14,12 @@
             <com.google.android.material.imageview.ShapeableImageView
                 android:layout_width="280dp"
                 android:layout_height="180dp"
-                android:src="@drawable/caption"
+                android:src="@color/white_1C1"
                 android:id="@+id/img_recipe_thumbnail"
                 app:shapeAppearance="@style/rounded_corner_12"
                 android:scaleType="centerCrop"/>
             <LinearLayout
+                android:visibility="gone"
                 android:id="@+id/btn_play"
                 android:layout_centerInParent="true"
                 android:gravity="center"
@@ -33,6 +34,12 @@
                     android:background="@drawable/ic_play"
                     android:backgroundTint="@color/red_E00"/>
             </LinearLayout>
+            <ProgressBar
+                android:id="@+id/pb_load_img"
+                android:indeterminateTint="@color/red_E00"
+                android:layout_centerInParent="true"
+                android:layout_width="32dp"
+                android:layout_height="32dp"/>
             <LinearLayout
                 android:layout_marginTop="6dp"
                 android:layout_marginLeft="6dp"
@@ -49,6 +56,7 @@
                     android:background="@drawable/ic_star"
                     android:backgroundTint="@color/white_000"/>
                 <TextView
+                    android:id="@+id/tv_recipe_averageRating"
                     android:gravity="center"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -86,7 +94,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="How to make sushi at home"
+                android:text="Recipe Name"
                 android:fontFamily="@font/be_vietnam_pro_semibold"
                 android:textColor="@color/black_333"
                 android:ellipsize="end"
@@ -104,6 +112,7 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
             <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/img_user_avatar"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 app:shapeAppearance="@style/rounded_corner_16"
@@ -114,7 +123,7 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="By Group 6"
+                android:text="User"
                 android:fontFamily="@font/be_vietnam_pro_regular"
                 android:textColor="@color/white_9A9"
                 android:ellipsize="end"

@@ -1,5 +1,9 @@
 package com.ph41626.pma101_recipesharingapplication.Fragment;
 
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
+
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -19,13 +23,18 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
+import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewPopularCreatorsAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewRecipeTrendingAdapter;
+import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewTop100RecipeAdapter;
+import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
+import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -74,11 +83,15 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    private RecyclerView rcv_trending;
+    private RecyclerView rcv_trending,rcv_top_100_recipe,rcv_popular_creators;
     private RecyclerViewRecipeTrendingAdapter recipeTrendingAdapter;
-
+    private RecyclerViewTop100RecipeAdapter top100RecipeAdapter;
+    private RecyclerViewPopularCreatorsAdapter popularCreatorsAdapter;
+    private ArrayList<User> users = new ArrayList<>();
     private ArrayList<Recipe> recipes = new ArrayList<>();
-
+    public HashMap<String,Media> recipeMedias = new HashMap<>();
+    public HashMap<String,User> recipeUsers = new HashMap<>();
+    public HashMap<String,Media> userMedias = new HashMap<>();
     private ViewModel viewModel;
     private FirebaseUtils firebaseUtils;
 
@@ -101,12 +114,88 @@ public class HomeFragment extends Fragment {
             @Override
             public void onChanged(ArrayList<Recipe> recipes) {
                 recipeTrendingAdapter.Update(recipes);
+                top100RecipeAdapter.Update(recipes);
+
+                for (int i = 0; i < recipes.size(); i++) {
+                    Recipe recipe = recipes.get(i);
+                    fetchMediaForRecipe(recipe,i,recipeTrendingAdapter);
+                    fetchMediaForRecipe(recipe,i,top100RecipeAdapter);
+                }
+            }
+        });
+        viewModel.getChangeDateUsers().observe(getViewLifecycleOwner(), new Observer<ArrayList<User>>() {
+            @Override
+            public void onChanged(ArrayList<User> users) {
+                popularCreatorsAdapter.Update(users);
+
+                for (int i = 0; i < users.size(); i++) {
+                    fetchMediaForUser(users.get(i),i,popularCreatorsAdapter);
+                }
             }
         });
     }
 
+    private void fetchMediaForRecipe(Recipe recipe,int pos,RecyclerView.Adapter adapter) {
+        if (recipeMedias.containsKey(recipe.getId()) && recipeMedias.get(recipe.getId()) != null) {
+            fetchUserForRecipe(recipe,pos,adapter);
+            return;
+        }
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Media media = snapshot.getValue(Media.class);
+
+                recipeMedias.put(recipe.getId(),media);
+                fetchUserForRecipe(recipe,pos,adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchUserForRecipe(Recipe recipe,int pos,RecyclerView.Adapter adapter) {
+        if (recipeUsers.containsKey(recipe.getUserId()) && recipeUsers.get(recipe.getId()) != null) {
+            fetchMediaForUser(recipeUsers.get(recipe.getId()),pos,adapter);
+            return;
+        }
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_USERS, recipe.getUserId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                recipeUsers.put(recipe.getId(),user);
+                fetchMediaForUser(user,pos,adapter);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchMediaForUser(User user,int pos,RecyclerView.Adapter adapter) {
+        if (user.getMediaId() == null ||
+                (userMedias.containsKey(user.getId()) && userMedias.get(user.getId()) != null)) {
+            adapter.notifyItemChanged(pos);
+            return;
+        }
+        firebaseUtils.getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Media media = snapshot.getValue(Media.class);
+                userMedias.put(user.getId(),media);
+                adapter.notifyItemChanged(pos);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     private void GetDataFromFirebase() {
-        firebaseUtils.getDataFromFirebase(MainActivity.REALTIME_RECIPES, new ValueEventListener() {
+        firebaseUtils.getDataFromFirebase(REALTIME_RECIPES, new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 recipes.clear();
@@ -122,16 +211,41 @@ public class HomeFragment extends Fragment {
 
             }
         });
-    }
+        firebaseUtils.getDataFromFirebase(REALTIME_USERS, new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                users.clear();
+                for (DataSnapshot userSnapshot:snapshot.getChildren()) {
+                    User user = userSnapshot.getValue(User.class);
+                    users.add(user);
+                }
+                viewModel.changeUsers(users);
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     private void RecyclerViewManager() {
-        recipeTrendingAdapter = new RecyclerViewRecipeTrendingAdapter(getContext(),recipes);
+        recipeTrendingAdapter = new RecyclerViewRecipeTrendingAdapter(getContext(),recipes,this);
         rcv_trending.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
         rcv_trending.setAdapter(recipeTrendingAdapter);
+
+        top100RecipeAdapter = new RecyclerViewTop100RecipeAdapter(getContext(),recipes,this);
+        rcv_top_100_recipe.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
+        rcv_top_100_recipe.setAdapter(top100RecipeAdapter);
+
+        popularCreatorsAdapter = new RecyclerViewPopularCreatorsAdapter(getContext(),users,this);
+        rcv_popular_creators.setLayoutManager(new LinearLayoutManager(getContext(),RecyclerView.HORIZONTAL,false));
+        rcv_popular_creators.setAdapter(popularCreatorsAdapter);
     }
 
     private void initUI(View view) {
         rcv_trending = view.findViewById(R.id.rcv_trending);
+        rcv_top_100_recipe = view.findViewById(R.id.rcv_top_100_recipe);
+        rcv_popular_creators = view.findViewById(R.id.rcv_popular_creators);
 
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         firebaseUtils = new FirebaseUtils();

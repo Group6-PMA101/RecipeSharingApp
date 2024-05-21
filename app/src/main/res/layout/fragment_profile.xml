@@ -8,7 +8,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -126,6 +126,22 @@
                 android:layout_height="35dp"
                 android:text="Edit profile"
                 android:textAllCaps="false"/>
+            <com.google.android.material.bottomnavigation.BottomNavigationView
+                android:id="@+id/bottomNavigationViewInventory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:background="@color/transparent"
+                app:itemIconTint="@color/white_9A9"
+                app:itemTextColor="@drawable/bottom_navigation_recipe_text_color"
+                app:itemBackground="@color/transparent"
+                android:outlineAmbientShadowColor="@color/transparent"
+                android:outlineSpotShadowColor="@color/transparent"
+                app:menu="@menu/bottom_navigation_recipe_menu"/>
+            <androidx.viewpager2.widget.ViewPager2
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/viewPager2_recipe"/>
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

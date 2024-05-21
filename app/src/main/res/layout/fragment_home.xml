@@ -98,7 +98,7 @@
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/rcv_recent_recipe"/>
+                android:id="@+id/rcv_top_100_recipe"/>
             <LinearLayout
                 android:layout_marginTop="12dp"
                 android:layout_width="match_parent"

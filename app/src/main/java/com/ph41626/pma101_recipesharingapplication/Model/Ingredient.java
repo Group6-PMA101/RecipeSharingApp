@@ -2,14 +2,16 @@ package com.ph41626.pma101_recipesharingapplication.Model;
 
 public class Ingredient {
     private String id;
+    private String recipeId;
     private String name;
     private float mass;
 
     public Ingredient() {
     }
 
-    public Ingredient(String id, String name, float mass) {
+    public Ingredient(String id, String recipeId, String name, float mass) {
         this.id = id;
+        this.recipeId = recipeId;
         this.name = name;
         this.mass = mass;
     }
@@ -20,6 +22,14 @@ public class Ingredient {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getRecipeId() {
+        return recipeId;
+    }
+
+    public void setRecipeId(String recipeId) {
+        this.recipeId = recipeId;
     }
 
     public String getName() {
@@ -36,14 +46,5 @@ public class Ingredient {
 
     public void setMass(float mass) {
         this.mass = mass;
-    }
-
-    @Override
-    public String toString() {
-        return "Ingredient{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", mass=" + mass +
-                '}';
     }
 }

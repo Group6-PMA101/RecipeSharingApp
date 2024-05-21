@@ -10,7 +10,6 @@ public class Recipe {
     private String userId;
     private int servings;
     private int cookTime;
-    private int ratingCount;
     private Date creationDate;
     private Date lastUpdateDate;
     private boolean isPublic;
@@ -32,7 +31,6 @@ public class Recipe {
         this.userId = userId;
         this.servings = servings;
         this.cookTime = cookTime;
-        this.ratingCount = 0;
         this.creationDate = new Date();
         this.lastUpdateDate = null;
         this.isPublic = isPublic;
@@ -87,14 +85,6 @@ public class Recipe {
 
     public int getCookTime() {
         return cookTime;
-    }
-
-    public int getRatingCount() {
-        return ratingCount;
-    }
-
-    public void setRatingCount(int ratingCount) {
-        this.ratingCount = ratingCount;
     }
 
     public void setCookTime(int cookTime) {
