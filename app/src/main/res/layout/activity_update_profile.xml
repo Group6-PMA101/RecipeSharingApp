@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    >
+
+    <!-- Back Button -->
+    <ImageButton
+        android:id="@+id/btn_back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_back" />
+
+    <!-- Profile Picture -->
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="24dp">
+
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:gravity="center">
+
+            <!-- ImageView để hiển thị ảnh tròn -->
+            <ImageView
+                android:id="@+id/img_profile"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:scaleType="centerCrop"
+                android:background="@drawable/backgroud_image_profile"
+                 />
+
+        </FrameLayout>
+
+
+        <ImageButton
+            android:id="@+id/btn_change_picture"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="bottom|end"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_camenra"
+            android:padding="8dp" />
+    </FrameLayout>
+
+    <!-- Name Input -->
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name"
+        android:text="Melissa Peters"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:background="@drawable/edit_text_background" />
+
+    <!-- Email Input -->
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Email"
+        android:text="melpeters@gmail.com"
+        android:layout_marginTop="16dp"
+        android:padding="12dp"
+        android:background="@drawable/edit_text_background"
+        android:inputType="textEmailAddress"
+        android:enabled="false" />
+
+    <!-- Password Input -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/et_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:text="**********"
+
+            android:padding="12dp"
+            android:layout_weight="1"
+            android:background="@drawable/edit_text_background"
+            android:inputType="textPassword"
+            android:enabled="false"
+
+            />
+        <Button
+            android:id="@+id/btn_ud_pass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Update"/>
+
+    </LinearLayout>
+
+
+    <!-- Save Changes Button -->
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Save changes"
+        android:backgroundTint="@color/red_E00"
+        android:textColor="@android:color/white"
+        android:padding="12dp" />
+
+</LinearLayout>

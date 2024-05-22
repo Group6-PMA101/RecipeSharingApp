@@ -5,6 +5,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -124,6 +126,15 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onChanged(ArrayList<Recipe> recipes) {
 
+            }
+        });
+
+        Button btn = view.findViewById(R.id.btn_edit_profile);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent= new Intent(requireActivity(),Update_Profile.class);
+                startActivity(intent);
             }
         });
 
