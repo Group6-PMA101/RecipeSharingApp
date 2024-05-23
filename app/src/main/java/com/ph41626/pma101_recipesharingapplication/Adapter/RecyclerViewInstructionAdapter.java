@@ -23,6 +23,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.OnItemInstructionListener;
 
 import java.util.ArrayList;
 
@@ -30,7 +31,7 @@ public class RecyclerViewInstructionAdapter extends RecyclerView.Adapter<Recycle
 
     private Context context;
     private ArrayList<Instruction> instructions;
-    private CreateRecipeFragment createRecipeFragment;
+    private OnItemInstructionListener itemInstructionListener;
 
     public void UpdateData(boolean type,ArrayList<Instruction> instructions, int pos) {
         this.instructions = instructions;
@@ -47,10 +48,10 @@ public class RecyclerViewInstructionAdapter extends RecyclerView.Adapter<Recycle
         this.instructions = instructions;
         notifyDataSetChanged();
     }
-    public RecyclerViewInstructionAdapter(Context context, ArrayList<Instruction> instructions, CreateRecipeFragment createRecipeFragment) {
+    public RecyclerViewInstructionAdapter(Context context, ArrayList<Instruction> instructions, OnItemInstructionListener itemInstructionListener) {
         this.context = context;
         this.instructions = instructions;
-        this.createRecipeFragment = createRecipeFragment;
+        this.itemInstructionListener = itemInstructionListener;
     }
 
     @NonNull
@@ -70,22 +71,26 @@ public class RecyclerViewInstructionAdapter extends RecyclerView.Adapter<Recycle
         if (instruction.getContent().trim().isEmpty()) holder.edt_content.setError("Content cannot be empty!");
         GetContent(holder,instruction);
         holder.btn_remove_item_instruction.setOnClickListener(v -> {
-            createRecipeFragment.ShowRemoveInstructionDialog(holder.getAdapterPosition(),instruction);
+            itemInstructionListener.removeItemInstruction(position,instruction);
+//            createRecipeFragment.ShowRemoveInstructionDialog(holder.getAdapterPosition(),instruction);
         });
         holder.btn_add_media.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createRecipeFragment.ChooseImage(instruction,holder.getAdapterPosition());
+                itemInstructionListener.chooseImage(instruction,holder.getAdapterPosition());
+//                createRecipeFragment.ChooseImage(instruction,holder.getAdapterPosition());
             }
         });
         if (instruction.getMediaIds() != null && !instruction.getMediaIds().isEmpty()) {
             for (String mediaId:instruction.getMediaIds()) {
-                Media media = findObjectById(createRecipeFragment.mediaList,mediaId);
+//                Media media = findObjectById(createRecipeFragment.mediaList,mediaId);
+                Media media = findObjectById(itemInstructionListener.getMedias(),mediaId);
                 View view = LayoutInflater.from(context).inflate(R.layout.item_instruction_thumbnail,null,false);
                 ImageView img = view.findViewById(R.id.img_thumbnail);
                 LinearLayout btn_remove_thumbnail = view.findViewById(R.id.btn_remove_thumbnail);
                 btn_remove_thumbnail.setOnClickListener(v -> {
-                    createRecipeFragment.RemoveItemThumbnail(mediaId,instruction,holder.getAdapterPosition());
+                    itemInstructionListener.removeItemMedia(mediaId,instruction,holder.getAdapterPosition());
+//                    createRecipeFragment.RemoveItemThumbnail(mediaId,instruction,holder.getAdapterPosition());
                 });
                 Glide.with(context).load(media.getUrl()).error(R.drawable.add_image).into(img);
                 holder.layout_image.addView(view,0);
@@ -101,17 +106,17 @@ public class RecyclerViewInstructionAdapter extends RecyclerView.Adapter<Recycle
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
                 holder.edt_content.setError(null);
                 if (!s.toString().isEmpty()) {
                     instruction.setContent(s.toString());
                 } else {
                     holder.edt_content.setError("Content cannot be empty!");
                 }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
     }

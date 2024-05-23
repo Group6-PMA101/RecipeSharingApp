@@ -1,34 +1,22 @@
 package com.ph41626.pma101_recipesharingapplication.Services;
 
-import android.content.Context;
-import android.graphics.RenderEffect;
-import android.graphics.Shader;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
-import android.text.Editable;
-import android.text.Layout;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
-import com.ph41626.pma101_recipesharingapplication.R;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class Services {
+    private static final List<String> VIDEO_EXTENSIONS = Arrays.asList(
+            ".mp4", ".avi", ".mkv", ".flv", ".webm", ".ogg", ".3gp", ".3g2"
+    );
     public static String RandomID() {return UUID.randomUUID().toString();}
     public static Ingredient CreateNewIngredient() {
         return new Ingredient(RandomID().toString(),"","",0);
@@ -62,8 +50,17 @@ public class Services {
         }
         return null;
     }
-    public static boolean isVideoMimeType(String mimeType) {
-        return mimeType.startsWith("video/");
+    public static boolean isVideo(String url) {
+        if (url == null) {
+            return false;
+        }
+        String urlLowerCase = url.toLowerCase();
+        for (String extension : VIDEO_EXTENSIONS) {
+            if (urlLowerCase.contains(extension)) {
+                return true;
+            }
+        }
+        return false;
     }
     public static String getMimeType(String url) throws IOException {
         URLConnection connection = new URL(url).openConnection();

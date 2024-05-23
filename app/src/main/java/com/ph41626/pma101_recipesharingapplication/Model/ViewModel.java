@@ -10,15 +10,17 @@ public class ViewModel extends androidx.lifecycle.ViewModel {
     private MutableLiveData<User> currentUser = new MutableLiveData<>();
     private MutableLiveData<ArrayList<User>> users = new MutableLiveData<>();
     private MutableLiveData<ArrayList<Recipe>> allRecipeByChef = new MutableLiveData<>();
-
+    private MutableLiveData<Recipe> recipe = new MutableLiveData<>();
 
     public void changeDateRecipes(ArrayList<Recipe> recipes) {this.liveDataRecipes.setValue(recipes);}
     public void changeCurrentUser(User user) {currentUser.setValue(user);}
     public void changeUsers(ArrayList<User> users) {this.users.setValue(users);}
     public void changeAllRecipeByChef(ArrayList<Recipe> recipes) {this.allRecipeByChef.setValue(recipes);}
+    public void addRecipe(Recipe recipe) {this.recipe.setValue(recipe);}
 
     public LiveData<ArrayList<Recipe>>getChangeDataRecipes() {return this.liveDataRecipes;}
     public LiveData<User> getChangeDateCurrentUser() {return this.currentUser;}
     public LiveData<ArrayList<User>> getChangeDateUsers() {return this.users;}
     public LiveData<ArrayList<Recipe>> getAllRecipeByChef() {return this.allRecipeByChef;}
+    public LiveData<Recipe> getRecipe() {return this.recipe;}
 }

@@ -1,8 +1,9 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Instruction {
+public class Instruction implements Serializable {
     private String id;
     private String recipeId;
     private String content;

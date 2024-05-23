@@ -13,16 +13,13 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewPopularCreatorsAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewRecipeTrendingAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewTop100RecipeAdapter;
@@ -35,6 +32,8 @@ import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -94,6 +93,8 @@ public class HomeFragment extends Fragment {
     public HashMap<String,Media> userMedias = new HashMap<>();
     private ViewModel viewModel;
     private FirebaseUtils firebaseUtils;
+    private List<CompletableFuture<Void>> recipeFutures = new ArrayList<>();
+    private List<CompletableFuture<Void>> userFutures = new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -116,11 +117,11 @@ public class HomeFragment extends Fragment {
                 recipeTrendingAdapter.Update(recipes);
                 top100RecipeAdapter.Update(recipes);
 
-                for (int i = 0; i < recipes.size(); i++) {
-                    Recipe recipe = recipes.get(i);
-                    fetchMediaForRecipe(recipe,i,recipeTrendingAdapter);
-                    fetchMediaForRecipe(recipe,i,top100RecipeAdapter);
-                }
+//                for (int i = 0; i < recipes.size(); i++) {
+//                    Recipe recipe = recipes.get(i);
+//                    fetchMediaForRecipe(recipe,i,recipeTrendingAdapter);
+//                    fetchMediaForRecipe(recipe,i,top100RecipeAdapter);
+//                }
             }
         });
         viewModel.getChangeDateUsers().observe(getViewLifecycleOwner(), new Observer<ArrayList<User>>() {
@@ -128,25 +129,27 @@ public class HomeFragment extends Fragment {
             public void onChanged(ArrayList<User> users) {
                 popularCreatorsAdapter.Update(users);
 
-                for (int i = 0; i < users.size(); i++) {
-                    fetchMediaForUser(users.get(i),i,popularCreatorsAdapter);
-                }
+//                for (int i = 0; i < users.size(); i++) {
+//                    fetchMediaForUser(users.get(i),i,popularCreatorsAdapter);
+//                }
             }
         });
     }
 
-    private void fetchMediaForRecipe(Recipe recipe,int pos,RecyclerView.Adapter adapter) {
+    private void fetchMediaForRecipe(Recipe recipe) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        recipeFutures.add(future);
         if (recipeMedias.containsKey(recipe.getId()) && recipeMedias.get(recipe.getId()) != null) {
-            fetchUserForRecipe(recipe,pos,adapter);
+            future.complete(null);
             return;
         }
+
         new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Media media = snapshot.getValue(Media.class);
-
                 recipeMedias.put(recipe.getId(),media);
-                fetchUserForRecipe(recipe,pos,adapter);
+                future.complete(null);
             }
 
             @Override
@@ -155,9 +158,11 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-    private void fetchUserForRecipe(Recipe recipe,int pos,RecyclerView.Adapter adapter) {
+    private void fetchUserForRecipe(Recipe recipe) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        recipeFutures.add(future);
         if (recipeUsers.containsKey(recipe.getUserId()) && recipeUsers.get(recipe.getId()) != null) {
-            fetchMediaForUser(recipeUsers.get(recipe.getId()),pos,adapter);
+            future.complete(null);
             return;
         }
         new FirebaseUtils().getDataFromFirebaseById(REALTIME_USERS, recipe.getUserId(), new ValueEventListener() {
@@ -165,7 +170,7 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
                 recipeUsers.put(recipe.getId(),user);
-                fetchMediaForUser(user,pos,adapter);
+                future.complete(null);
             }
 
             @Override
@@ -174,10 +179,13 @@ public class HomeFragment extends Fragment {
             }
         });
     }
-    private void fetchMediaForUser(User user,int pos,RecyclerView.Adapter adapter) {
+    private void fetchMediaForUser(User user) {
+        CompletableFuture<Void> future = new CompletableFuture<>();
+        userFutures.add(future);
+
         if (user.getMediaId() == null ||
                 (userMedias.containsKey(user.getId()) && userMedias.get(user.getId()) != null)) {
-            adapter.notifyItemChanged(pos);
+            future.complete(null);
             return;
         }
         firebaseUtils.getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {
@@ -185,7 +193,8 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Media media = snapshot.getValue(Media.class);
                 userMedias.put(user.getId(),media);
-                adapter.notifyItemChanged(pos);
+//                adapter.notifyItemChanged(pos);
+                future.complete(null);
             }
 
             @Override
@@ -202,8 +211,18 @@ public class HomeFragment extends Fragment {
                 for (DataSnapshot recipeSnapshot:snapshot.getChildren()) {
                     Recipe recipe = recipeSnapshot.getValue(Recipe.class);
                     recipes.add(recipe);
+                    fetchMediaForRecipe(recipe);
+                    fetchUserForRecipe(recipe);
                 }
-                viewModel.changeDateRecipes(recipes);
+
+                CompletableFuture<Void> allOf = CompletableFuture.allOf(recipeFutures.toArray(new CompletableFuture[0]));
+                allOf.thenRun(() -> {
+                    viewModel.changeDateRecipes(recipes);
+                }).exceptionally(e -> {
+                    e.printStackTrace();
+                    return null;
+                });
+
             }
 
             @Override
@@ -218,8 +237,15 @@ public class HomeFragment extends Fragment {
                 for (DataSnapshot userSnapshot:snapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
                     users.add(user);
+                    fetchMediaForUser(user);
                 }
-                viewModel.changeUsers(users);
+                CompletableFuture<Void> allOf = CompletableFuture.allOf(userFutures.toArray(new CompletableFuture[0]));
+                allOf.thenRun(() -> {
+                    viewModel.changeUsers(users);
+                }).exceptionally(e -> {
+                    e.printStackTrace();
+                    return null;
+                });
             }
 
             @Override

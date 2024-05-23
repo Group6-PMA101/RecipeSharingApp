@@ -11,8 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.ph41626.pma101_recipesharingapplication.Adapter.LinearLayoutAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewAllRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
@@ -72,7 +74,15 @@ public class SharedRecipesFragment extends Fragment {
     private ViewModel viewModel;
     private RecyclerViewAllRecipeAdapter allRecipeAdapter;
     public ProfileFragment profileFragment;
-
+    private LinearLayout layout_recipe;
+    private LinearLayoutAdapter linearLayoutAdapter;
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (profileFragment != null) {
+            profileFragment.adjustViewPagerHeight(profileFragment.viewPager2_recipe);
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -89,37 +99,45 @@ public class SharedRecipesFragment extends Fragment {
                         newRecipes.add(recipe);
                     }
                 }
-                UpdateUI(newRecipes);
+                linearLayoutAdapter.Update(newRecipes);
+
+//                UpdateUI(newRecipes);
+
+
             }
         });
-//        viewModel.getSharedRecipes().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {
-//            @Override
-//            public void onChanged(ArrayList<Recipe> recipes) {
-//                ArrayList<Recipe> newRecipes = new ArrayList<>();
-//                for(Recipe recipe:recipes) {
-//                    if (recipe.isPublic()) {
-//                        newRecipes.add(recipe);
-//                    }
-//                }
-//                UpdateUI(newRecipes);
-//            }
-//        });
         return view;
     }
-    private void UpdateUI(ArrayList<Recipe> recipes) {
-        this.recipes = recipes;
-        allRecipeAdapter.Update(recipes);
-    }
+//    private void UpdateUI(ArrayList<Recipe> recipes) {
+//        this.recipes = recipes;
+//        allRecipeAdapter.Update(recipes);
+//    }
 
     private void RecyclerViewManager() {
-        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
-        rcv_shared_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-        rcv_shared_recipes.setAdapter(allRecipeAdapter);
-        rcv_shared_recipes.setNestedScrollingEnabled(true);
+        linearLayoutAdapter = new LinearLayoutAdapter(getContext(),new ArrayList<>(),layout_recipe,profileFragment);
+//        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
+//        rcv_shared_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+//        rcv_shared_recipes.setAdapter(allRecipeAdapter);
+//        rcv_shared_recipes.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+//                int totalHeight = 0;
+//                for (int j = 0; j < allRecipeAdapter.getItemCount(); j++) {
+//                    View item = rcv_shared_recipes.getChildAt(i);
+//                    if (item != null) {
+//                        totalHeight += item.getHeight();
+//                    }
+//                }
+//                ViewGroup.LayoutParams params = rcv_shared_recipes.getLayoutParams();
+//                params.height = totalHeight;
+//                rcv_shared_recipes.setLayoutParams(params);
+//            }
+//        });
     }
 
     private void initUI(View view) {
-        rcv_shared_recipes = view.findViewById(R.id.rcv_shared_recipes);
+        layout_recipe = view.findViewById(R.id.layout_recipe);
+//        rcv_shared_recipes = view.findViewById(R.id.rcv_shared_recipes);
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
         for (Fragment fragment : fragments) {

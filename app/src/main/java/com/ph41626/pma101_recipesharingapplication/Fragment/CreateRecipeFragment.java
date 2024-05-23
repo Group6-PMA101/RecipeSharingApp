@@ -25,8 +25,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,6 +35,7 @@ import android.text.InputType;
 import android.text.SpannableString;
 import android.text.TextWatcher;
 import android.text.style.ForegroundColorSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,7 +63,10 @@ import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
+import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.OnItemIngredientListener;
+import com.ph41626.pma101_recipesharingapplication.Services.OnItemInstructionListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -146,7 +149,7 @@ public class CreateRecipeFragment extends Fragment {
     private String specialCharacters = "[^\"]+";
 
     private MainActivity mainActivity;
-
+    private ViewModel viewModel;
     private StorageReference storageReference;
     private DatabaseReference
             databaseReferenceMedias,
@@ -160,9 +163,8 @@ public class CreateRecipeFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_create_recipe, container, false);
 
         initUI();
-        newRecipe.setId(RandomID());
         SetupButtonListeners();
-        RecyclerManager();
+        SetupRecyclerView();
         //Update
 
         return view;
@@ -173,10 +175,17 @@ public class CreateRecipeFragment extends Fragment {
 
         mediaList.clear();
         ingredientList.clear();
-        ingredientList.add(CreateNewIngredient());
-        ingredient_adapter.Reset(ingredientList);
         instructionList.clear();
-        instructionList.add(CreateNewInstruction());
+
+        Ingredient newIngredient = CreateNewIngredient();
+        newIngredient.setRecipeId(newRecipe.getId());
+        ingredientList.add(newIngredient);
+
+        Instruction newInstruction = CreateNewInstruction();
+        newInstruction.setRecipeId(newRecipe.getId());
+        instructionList.add(newInstruction);
+
+        ingredient_adapter.Reset(ingredientList);
         instruction_adapter.Reset(instructionList);
 
         tv_serves.setText("0");
@@ -270,17 +279,10 @@ public class CreateRecipeFragment extends Fragment {
                 newInstruction.setRecipeId(newRecipe.getId());
                 instructionList.add(newInstruction);
                 instruction_adapter.UpdateData(true, instructionList, instructionList.size());
+                Log.e("Check data instruction",newInstruction.toString());
             }
         });
     }
-//    private void DeleteFile() {
-//        storageReference.child("1715517066797.jpg").delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void unused) {
-//                Toast.makeText(getContext(), "File deleted successfully", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-//    }
     private void SaveDataToFirebase() {
         ArrayList<UploadTask> uploadTaskMedias = new ArrayList<>();
         ArrayList<Task<Void>> uploadTaskIngredients = new ArrayList<>();
@@ -298,6 +300,7 @@ public class CreateRecipeFragment extends Fragment {
                             @Override
                             public void onSuccess(Uri uri) {
                                 media.setUrl(uri.toString());
+                                media.setUpload(true);
                                 databaseReferenceMedias.child(media.getId()).setValue(media);
                             }
                         });
@@ -316,13 +319,6 @@ public class CreateRecipeFragment extends Fragment {
             DatabaseReference databaseReferenceRef = databaseReferenceInstructions.child(instruction.getId());
             uploadTaskInstructions.add(databaseReferenceRef.setValue(instruction));
         }
-//        Tasks.whenAll(uploadTaskMedias).addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-
-//            } else {
-//                Toast.makeText(getContext(), "Failure!", Toast.LENGTH_SHORT).show();
-//            }
-//        });
         ArrayList<CompletableFuture<Void>> futures = new ArrayList<>();
         for (UploadTask uploadTask : uploadTaskMedias) {
             CompletableFuture<Void> future = new CompletableFuture<>();
@@ -352,6 +348,7 @@ public class CreateRecipeFragment extends Fragment {
         allOf.thenRun(() -> {
             Toast.makeText(getContext(), "Create Completed.", Toast.LENGTH_SHORT).show();
             ResetData();
+            viewModel.addRecipe(newRecipe);
             progressDialog.dismiss();
         }).exceptionally(e -> {
             e.printStackTrace();
@@ -545,7 +542,7 @@ public class CreateRecipeFragment extends Fragment {
     }
     public void ChooseImage(Instruction instruction, int pos) {
         if (instruction != null && pos != -1) {
-            if (instruction != null && instruction.getMediaIds().size() == 3) {
+            if (instruction != null && instruction.getMediaIds() != null  && instruction.getMediaIds().size() == 3) {
                 Toast.makeText(getContext(), "You can only add up to 3 images for each step!", Toast.LENGTH_SHORT).show();
                 return;
             }
@@ -613,22 +610,47 @@ public class CreateRecipeFragment extends Fragment {
             }
         }
     }
-    private void RecyclerManager() {
+    private void SetupRecyclerView() {
         Ingredient newIngredient = CreateNewIngredient();
         newIngredient.setRecipeId(newRecipe.getId());
         ingredientList.add(newIngredient);
-        Instruction instruction = CreateNewInstruction();
-        instruction.setRecipeId(newRecipe.getId());
-        instructionList.add(CreateNewInstruction());
+        Instruction newInstruction = CreateNewInstruction();
+        newInstruction.setRecipeId(newRecipe.getId());
+        instructionList.add(newInstruction);
 
         ingredient_adapter = new RecyclerViewIngredientAdapter(
                 getContext(),
                 ingredientList,
-                this);
+                new OnItemIngredientListener() {
+                    @Override
+                    public void removeItemIngredient(Ingredient ingredient,int position) {
+                        RemoveItemIngredient(ingredient,position);
+                    }
+                });
         instruction_adapter = new RecyclerViewInstructionAdapter(
                 getContext(),
                 instructionList,
-                this
+                new OnItemInstructionListener() {
+                    @Override
+                    public void removeItemInstruction(int position, Instruction instruction) {
+                        ShowRemoveInstructionDialog(position,instruction);
+                    }
+
+                    @Override
+                    public void removeItemMedia(String mediaId, Instruction instruction, int pos) {
+                        RemoveItemThumbnail(mediaId,instruction,pos);
+                    }
+
+                    @Override
+                    public void chooseImage(Instruction instruction, int pos) {
+                        ChooseImage(instruction,pos);
+                    }
+
+                    @Override
+                    public ArrayList<Media> getMedias() {
+                        return mediaList;
+                    }
+                }
         );
         rcv_ingredient.setLayoutManager(new GridLayoutManager(getContext(),1));
         rcv_ingredient.setAdapter(ingredient_adapter);
@@ -644,11 +666,11 @@ public class CreateRecipeFragment extends Fragment {
         ArrayList<String> mediaIds = instruction.getMediaIds();
         mediaIds.remove(mediaId);
         instruction.setMediaIds(mediaIds);
-        instruction_adapter.UpdateData(false, instructionList,instructionPos);
+        instruction_adapter.notifyItemChanged(instructionPos,instruction);
     }
-    public void RemoveItemIngredient(int pos) {
+    public void RemoveItemIngredient(Ingredient ingredient,int pos) {
         if (view.hasFocus()) view.clearFocus();
-        ingredientList.remove(pos);
+        ingredientList.remove(ingredient);
         ingredient_adapter.UpdateData(false, ingredientList,pos);
     }
     public void RemoveItemInstruction(int pos, Instruction instruction) {
@@ -705,6 +727,7 @@ public class CreateRecipeFragment extends Fragment {
         return uri.getPath();
     }
     private void initUI() {
+        newRecipe.setId(RandomID());
         storageReference = FirebaseStorage.getInstance().getReference(STORAGE_MEDIAS);
         databaseReferenceMedias = FirebaseDatabase.getInstance().getReference(REALTIME_MEDIAS);
         databaseReferenceIngredients = FirebaseDatabase.getInstance().getReference(REALTIME_INGREDIENTS);
@@ -730,5 +753,6 @@ public class CreateRecipeFragment extends Fragment {
         rcv_instruction = view.findViewById(R.id.rcv_instruction);
 
         mainActivity = (MainActivity) getActivity();
+        viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
     }
 }

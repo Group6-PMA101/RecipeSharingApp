@@ -11,16 +11,19 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
+import com.ph41626.pma101_recipesharingapplication.Adapter.LinearLayoutAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewAllRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
@@ -84,6 +87,17 @@ public class AllRecipesFragment extends Fragment {
     private ViewModel viewModel;
     private RecyclerViewAllRecipeAdapter allRecipeAdapter;
     public ProfileFragment profileFragment;
+    private LinearLayout layout_recipe;
+    private LinearLayoutAdapter linearLayoutAdapter;
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (profileFragment != null) {
+            profileFragment.adjustViewPagerHeight(profileFragment.viewPager2_recipe);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -95,27 +109,60 @@ public class AllRecipesFragment extends Fragment {
         viewModel.getAllRecipeByChef().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {
             @Override
             public void onChanged(ArrayList<Recipe> recipes) {
-               UpdateUI(recipes);
-
+//               UpdateUI(recipes);
+                linearLayoutAdapter.Update(recipes);
             }
         });
+//        allRecipeAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+//            @Override
+//            public void onChanged() {
+//                super.onChanged();
+//                adjustViewPagerHeight(profileFragment.viewPager2_recipe, rcv_all_recipes);
+//            }
+//
+//            @Override
+//            public void onItemRangeInserted(int positionStart, int itemCount) {
+//                super.onItemRangeInserted(positionStart, itemCount);
+//                adjustViewPagerHeight(profileFragment.viewPager2_recipe, rcv_all_recipes);
+//
+//            }
+//
+//            @Override
+//            public void onItemRangeRemoved(int positionStart, int itemCount) {
+//                super.onItemRangeRemoved(positionStart, itemCount);
+//                adjustViewPagerHeight(profileFragment.viewPager2_recipe, rcv_all_recipes);
+//
+//            }
+//        });
 
         return view;
     }
 
-    private void UpdateUI(ArrayList<Recipe> recipes) {
-        allRecipeAdapter.Update(recipes);
-    }
-
     private void RecyclerViewManager() {
-        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
-        rcv_all_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-        rcv_all_recipes.setAdapter(allRecipeAdapter);
-        rcv_all_recipes.setNestedScrollingEnabled(true);
+        linearLayoutAdapter = new LinearLayoutAdapter(getContext(),new ArrayList<>(),layout_recipe,profileFragment);
+//        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
+//        rcv_all_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+//        rcv_all_recipes.setAdapter(allRecipeAdapter);
+//        rcv_all_recipes.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+//                int totalHeight = 0;
+//                for (int j = 0; j < allRecipeAdapter.getItemCount(); j++) {
+//                    View item = rcv_all_recipes.getChildAt(i);
+//                    if (item != null) {
+//                        totalHeight += item.getHeight();
+//                    }
+//                }
+//                ViewGroup.LayoutParams params = rcv_all_recipes.getLayoutParams();
+//                params.height = totalHeight;
+//                rcv_all_recipes.setLayoutParams(params);
+//            }
+//        });
     }
 
     private void initUI(View view) {
-        rcv_all_recipes = view.findViewById(R.id.rcv_all_recipes);
+        layout_recipe = view.findViewById(R.id.layout_recipe);
+//        rcv_all_recipes = view.findViewById(R.id.rcv_all_recipes);
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
         for (Fragment fragment : fragments) {

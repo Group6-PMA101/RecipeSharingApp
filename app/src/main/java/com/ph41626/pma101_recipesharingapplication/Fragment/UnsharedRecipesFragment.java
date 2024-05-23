@@ -11,7 +11,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
+import com.ph41626.pma101_recipesharingapplication.Adapter.LinearLayoutAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewAllRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
@@ -57,11 +59,6 @@ public class UnsharedRecipesFragment extends Fragment {
         fragment.setArguments(args);
         return fragment;
     }
-    private ArrayList<Recipe> recipes = new ArrayList<>();
-    private RecyclerView rcv_unshared_recipes;
-    private ViewModel viewModel;
-    private RecyclerViewAllRecipeAdapter allRecipeAdapter;
-    public ProfileFragment profileFragment;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +67,21 @@ public class UnsharedRecipesFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+    private ArrayList<Recipe> recipes = new ArrayList<>();
+    private RecyclerView rcv_unshared_recipes;
+    private ViewModel viewModel;
+    private RecyclerViewAllRecipeAdapter allRecipeAdapter;
+    public ProfileFragment profileFragment;
 
+    private LinearLayoutAdapter linearLayoutAdapter;
+    private LinearLayout layout_recipe;
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (profileFragment != null) {
+            profileFragment.adjustViewPagerHeight(profileFragment.viewPager2_recipe);
+        }
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,25 +98,42 @@ public class UnsharedRecipesFragment extends Fragment {
                         newRecipes.add(recipe);
                     }
                 }
-                UpdateUI(newRecipes);
+                linearLayoutAdapter.Update(newRecipes);
+//                UpdateUI(newRecipes);
             }
         });
         return view;
     }
-    private void UpdateUI(ArrayList<Recipe> recipes) {
-        this.recipes = recipes;
-        allRecipeAdapter.Update(recipes);
-    }
+//    private void UpdateUI(ArrayList<Recipe> recipes) {
+//        this.recipes = recipes;
+//        allRecipeAdapter.Update(recipes);
+//    }
 
     private void RecyclerViewManager() {
-        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
-        rcv_unshared_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
-        rcv_unshared_recipes.setAdapter(allRecipeAdapter);
-        rcv_unshared_recipes.setNestedScrollingEnabled(true);
+        linearLayoutAdapter = new LinearLayoutAdapter(getContext(),new ArrayList<>(),layout_recipe,profileFragment);
+//        allRecipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(),new ArrayList<>(),profileFragment);
+//        rcv_unshared_recipes.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL,false));
+//        rcv_unshared_recipes.setAdapter(allRecipeAdapter);
+//        rcv_unshared_recipes.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+//            @Override
+//            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+//                int totalHeight = 0;
+//                for (int j = 0; j < allRecipeAdapter.getItemCount(); j++) {
+//                    View item = rcv_unshared_recipes.getChildAt(i);
+//                    if (item != null) {
+//                        totalHeight += item.getHeight();
+//                    }
+//                }
+//                ViewGroup.LayoutParams params = rcv_unshared_recipes.getLayoutParams();
+//                params.height = totalHeight;
+//                rcv_unshared_recipes.setLayoutParams(params);
+//            }
+//        });
     }
 
     private void initUI(View view) {
-        rcv_unshared_recipes = view.findViewById(R.id.rcv_unshared_recipes);
+        layout_recipe = view.findViewById(R.id.layout_recipe);
+//        rcv_unshared_recipes = view.findViewById(R.id.rcv_unshared_recipes);
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         List<Fragment> fragments = getActivity().getSupportFragmentManager().getFragments();
         for (Fragment fragment : fragments) {

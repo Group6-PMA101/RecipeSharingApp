@@ -5,14 +5,18 @@
     android:layout_height="match_parent"
     tools:context=".Fragment.UnsharedRecipesFragment">
 
-    <androidx.core.widget.NestedScrollView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <androidx.recyclerview.widget.RecyclerView
-            android:paddingHorizontal="24dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/rcv_unshared_recipes"/>
-    </androidx.core.widget.NestedScrollView>
+    <LinearLayout
+        android:paddingHorizontal="24dp"
+        android:id="@+id/layout_recipe"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:animateLayoutChanges="true">
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:paddingHorizontal="24dp"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:id="@+id/rcv_unshared_recipes"/>-->
+    </LinearLayout>
 
 </FrameLayout>

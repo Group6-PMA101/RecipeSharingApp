@@ -1,6 +1,6 @@
 package com.ph41626.pma101_recipesharingapplication.Adapter;
 
-import static com.ph41626.pma101_recipesharingapplication.Services.Services.isVideoMimeType;
+import static com.ph41626.pma101_recipesharingapplication.Services.Services.isVideo;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -81,7 +81,7 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
                         error(R.drawable.caption).
                         placeholder(R.drawable.caption).
                         into(holder.img_recipe_thumbnail);
-                if (isVideoMimeType(recipeMedia.getUrl())) {
+                if (isVideo(recipeMedia.getUrl())) {
                     holder.btn_play.setVisibility(View.VISIBLE);
                 } else {
                     holder.btn_play.setVisibility(View.GONE);

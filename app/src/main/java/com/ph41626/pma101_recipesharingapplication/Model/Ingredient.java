@@ -1,6 +1,8 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
-public class Ingredient {
+import java.io.Serializable;
+
+public class Ingredient implements Serializable {
     private String id;
     private String recipeId;
     private String name;
@@ -46,5 +48,15 @@ public class Ingredient {
 
     public void setMass(float mass) {
         this.mass = mass;
+    }
+
+    @Override
+    public String toString() {
+        return "Ingredient{" +
+                "id='" + id + '\'' +
+                ", recipeId='" + recipeId + '\'' +
+                ", name='" + name + '\'' +
+                ", mass=" + mass +
+                '}';
     }
 }

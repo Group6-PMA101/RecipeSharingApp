@@ -3,20 +3,19 @@ package com.ph41626.pma101_recipesharingapplication.Adapter;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
-import com.ph41626.pma101_recipesharingapplication.Fragment.CreateRecipeFragment;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.OnItemIngredientListener;
 
 import java.util.ArrayList;
 
@@ -24,20 +23,26 @@ public class RecyclerViewIngredientAdapter extends RecyclerView.Adapter<Recycler
 
     private Context context;
     private ArrayList<Ingredient> ingredients;
-    private CreateRecipeFragment createRecipeFragment;
+    private OnItemIngredientListener itemRemoveListener;
 
     public void UpdateData(boolean type,ArrayList<Ingredient> ingredients, int pos) {
         this.ingredients = ingredients;
-        if (type) notifyItemInserted(pos); else notifyItemRemoved(pos);
+        if (type) notifyItemInserted(pos);
+        else {
+            notifyItemRemoved(pos);
+            for (int i = pos; i < ingredients.size(); i++) {
+                notifyItemChanged(i);
+            }
+        }
     }
     public void Reset(ArrayList<Ingredient> ingredients) {
         this.ingredients = ingredients;
         notifyDataSetChanged();
     }
-    public RecyclerViewIngredientAdapter(Context context, ArrayList<Ingredient> ingredients,CreateRecipeFragment createRecipeFragment) {
+    public RecyclerViewIngredientAdapter(Context context, ArrayList<Ingredient> ingredients, OnItemIngredientListener itemRemoveListener) {
         this.context = context;
         this.ingredients = ingredients;
-        this.createRecipeFragment = createRecipeFragment;
+        this.itemRemoveListener = itemRemoveListener;
     }
 
     @NonNull
@@ -56,7 +61,8 @@ public class RecyclerViewIngredientAdapter extends RecyclerView.Adapter<Recycler
         GetName(holder,ingredient);
         GetMass(holder,ingredient);
         holder.btn_remove_item_ingredient.setOnClickListener(v -> {
-            createRecipeFragment.RemoveItemIngredient(holder.getAdapterPosition());
+            itemRemoveListener.removeItemIngredient(ingredient,position);
+            Log.e("check index A",holder.getAdapterPosition() + "");
         });
     }
     private void GetMass(final ViewHolder holder,final Ingredient ingredient) {

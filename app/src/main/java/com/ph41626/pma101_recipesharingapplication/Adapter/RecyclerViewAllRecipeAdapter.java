@@ -80,6 +80,7 @@ public class RecyclerViewAllRecipeAdapter extends RecyclerView.Adapter<RecyclerV
             });
         }
     }
+
     @Override
     public int getItemCount() {
         return recipes != null ? recipes.size() : 0;
@@ -123,6 +124,7 @@ public class RecyclerViewAllRecipeAdapter extends RecyclerView.Adapter<RecyclerV
         } else {
             menuItems.add("Shared");
         }
+        menuItems.add("Update");
         menuItems.add("Delete");
         return menuItems;
     }
@@ -130,11 +132,13 @@ public class RecyclerViewAllRecipeAdapter extends RecyclerView.Adapter<RecyclerV
     private void handleMenuItemClick(MenuItem item, Recipe recipe) {
         if (item.getTitle().equals("Shared")) {
             recipe.setPublic(true);
-            profileFragment.UpdateSharedRecipe(recipe);
+            profileFragment.SharedRecipe(recipe);
         } else if (item.getTitle().equals("Unshared")) {
             recipe.setPublic(false);
-            profileFragment.UpdateSharedRecipe(recipe);
+            profileFragment.SharedRecipe(recipe);
         } else if (item.getTitle().equals("Delete")) {
+
+        } else if (item.getTitle().equals("Update")) {
 
         }
     }

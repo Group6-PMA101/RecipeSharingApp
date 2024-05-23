@@ -1,9 +1,10 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class Recipe {
+public class Recipe implements Serializable {
     private String id;
     private String name;
     private String mediaId;

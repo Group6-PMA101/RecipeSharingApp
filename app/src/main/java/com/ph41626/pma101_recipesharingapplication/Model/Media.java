@@ -1,9 +1,12 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
-public class Media {
+import java.io.Serializable;
+
+public class Media implements Serializable {
     private String id;
     private String name;
     private String url;
+    private boolean isUpload;
 
     public Media() {
     }
@@ -12,6 +15,7 @@ public class Media {
         this.id = id;
         this.name = name;
         this.url = url;
+        this.isUpload = false;
     }
 
     public String getId() {
@@ -36,5 +40,23 @@ public class Media {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public boolean isUpload() {
+        return isUpload;
+    }
+
+    public void setUpload(boolean upload) {
+        isUpload = upload;
+    }
+
+    @Override
+    public String toString() {
+        return "Media{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", isUpload=" + isUpload +
+                '}';
     }
 }
