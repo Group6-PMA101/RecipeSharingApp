@@ -98,6 +98,12 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
             if (homeFragment.recipeUsers.get(recipe.getId()) != null) {
                 holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getId()).getName());
             }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    homeFragment.RecipeDetail(recipe);
+                }
+            });
         }
     }
 

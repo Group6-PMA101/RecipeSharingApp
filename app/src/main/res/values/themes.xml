@@ -20,4 +20,10 @@
         <item name="android:textColorPrimary">@color/black_333</item>
         <item name="android:background">@color/white_000</item>
     </style>
+    <style name="FullScreenDialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+    </style>
 </resources>

@@ -73,7 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
 
         User newUser = new User(RandomID(),name,email,password,role);
 
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
         progressDialog.setMessage("Please wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();

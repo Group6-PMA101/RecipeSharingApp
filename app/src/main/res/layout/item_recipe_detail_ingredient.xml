@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="6dp">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:backgroundTint="@color/white_1F1"
+        android:background="@drawable/cus_bgr_rounded_corner_10"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="12dp">
+        <TextView
+            android:id="@+id/tv_ingredient_name"
+            android:singleLine="false"
+            android:layout_width="0dp"
+            android:layout_weight="2"
+            android:layout_height="wrap_content"
+            android:text="Ingredient Name"
+            android:fontFamily="@font/be_vietnam_pro_semibold"
+            android:textSize="16sp"
+            android:textColor="@color/black_333"/>
+        <TextView
+            android:id="@+id/tv_ingredient_mass"
+            android:gravity="right"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="200gram"
+            android:fontFamily="@font/be_vietnam_pro_regular"
+            android:textSize="14sp"
+            android:textColor="@color/white_9A9"/>
+    </LinearLayout>
+</RelativeLayout>

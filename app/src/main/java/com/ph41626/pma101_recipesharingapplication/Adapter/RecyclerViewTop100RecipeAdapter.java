@@ -63,6 +63,13 @@ public class RecyclerViewTop100RecipeAdapter extends RecyclerView.Adapter<Recycl
                 holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getId()).getName());
             }
             holder.pb_load_img.setVisibility(View.GONE);
+
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    homeFragment.RecipeDetail(recipe);
+                }
+            });
         }
     }
     @Override

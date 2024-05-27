@@ -176,20 +176,22 @@ public class Recipe implements Serializable {
     @Override
     public String toString() {
         return "Recipe{" +
-                "\nid='" + id + '\'' +
-                ",\n name='" + name + '\'' +
-                ",\n mediaId='" + mediaId + '\'' +
-                ",\n userId='" + userId + '\'' +
-                ",\n servings=" + servings +
-                ",\n cookTime=" + cookTime +
-                ",\n creationDate=" + creationDate +
-                ",\n lastUpdateDate=" + lastUpdateDate +
-                ",\n isPublic=" + isPublic +
-                ",\n isStatus=" + isStatus +
-                ",\n ingredientIds=" + ingredientIds +
-                ",\n instructionIds=" + instructionIds +
-                ",\n commentIds=" + commentIds +
-                ",\n ratingIds=" + ratingIds +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", mediaId='" + mediaId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", servings=" + servings +
+                ", cookTime=" + cookTime +
+                ", creationDate=" + creationDate +
+                ", lastUpdateDate=" + lastUpdateDate +
+                ", isPublic=" + isPublic +
+                ", isStatus=" + isStatus +
+                ", totalReviews=" + totalReviews +
+                ", averageRating=" + averageRating +
+                ", ingredientIds=" + ingredientIds +
+                ", instructionIds=" + instructionIds +
+                ", commentIds=" + commentIds +
+                ", ratingIds=" + ratingIds +
                 '}';
     }
 }

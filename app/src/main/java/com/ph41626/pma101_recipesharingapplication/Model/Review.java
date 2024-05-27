@@ -1,5 +1,7 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
+import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
+
 public class Review {
     private String id;
     private String recipeId;
@@ -8,10 +10,11 @@ public class Review {
     private String content;
 
     public Review() {
+        this.id = RandomID();
     }
 
-    public Review(String id, String recipeId, String userId, int ratingValue, String content) {
-        this.id = id;
+    public Review(String recipeId, String userId, int ratingValue, String content) {
+        this.id = RandomID();
         this.recipeId = recipeId;
         this.userId = userId;
         this.ratingValue = ratingValue;

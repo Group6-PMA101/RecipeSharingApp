@@ -10,6 +10,7 @@ import static com.ph41626.pma101_recipesharingapplication.Services.Services.Crea
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.CreateNewInstruction;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.findObjectById;
+import static com.ph41626.pma101_recipesharingapplication.Services.VideoDialogUtil.ShowVideoDialog;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -203,7 +204,7 @@ public class CreateRecipeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 if (view.hasFocus()) view.clearFocus();
-                ShowVideoAlertDialog(findObjectById(mediaList,newRecipe.getMediaId()).getUrl());
+                ShowVideoDialog(getContext(),findObjectById(mediaList,newRecipe.getMediaId()).getUrl());
             }
         });
         btn_choose_media.setOnClickListener(new View.OnClickListener() {
@@ -279,7 +280,6 @@ public class CreateRecipeFragment extends Fragment {
                 newInstruction.setRecipeId(newRecipe.getId());
                 instructionList.add(newInstruction);
                 instruction_adapter.UpdateData(true, instructionList, instructionList.size());
-                Log.e("Check data instruction",newInstruction.toString());
             }
         });
     }
@@ -506,25 +506,6 @@ public class CreateRecipeFragment extends Fragment {
         });
 
         builder.show();
-    }
-    private void ShowVideoAlertDialog(String url) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-        builder.setTitle("Watch Video");
-        VideoView videoView = new VideoView(getContext());
-        Uri videoUri = Uri.parse(url);
-        videoView.setVideoURI(videoUri);
-
-        builder.setView(videoView);
-        builder.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                videoView.stopPlayback();
-            }
-        });
-
-        AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-        videoView.start();
     }
     private boolean isValidInteger(String value) {
         try {

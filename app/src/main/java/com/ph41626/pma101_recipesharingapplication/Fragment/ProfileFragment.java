@@ -266,7 +266,7 @@ public class ProfileFragment extends Fragment {
         builder.show();
     }
     private void DeleteRecipeFromDatabase(Recipe recipe) {
-        ProgressDialog progressDialog = new ProgressDialog(getContext());
+        ProgressDialog progressDialog = new ProgressDialog(getContext(),R.style.AppCompatAlertDialogStyle);
         progressDialog.setMessage("Please wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();
@@ -352,8 +352,6 @@ public class ProfileFragment extends Fragment {
                     fetchInstructionForRecipe(recipe);
                 }
                 tv_recipes_count_user.setText(String.valueOf(recipes.size()));
-//                viewModel.changeAllRecipeByChef(recipes);
-
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
                 allOf.thenRun(() -> {
 //                    Toast.makeText(getContext(), "Completed.", Toast.LENGTH_SHORT).show();

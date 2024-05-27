@@ -4,6 +4,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.view.ViewGroup;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
+import com.ph41626.pma101_recipesharingapplication.Activity.RecipeDetailActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewPopularCreatorsAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewRecipeTrendingAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewTop100RecipeAdapter;
@@ -117,21 +119,12 @@ public class HomeFragment extends Fragment {
                 recipeTrendingAdapter.Update(recipes);
                 top100RecipeAdapter.Update(recipes);
 
-//                for (int i = 0; i < recipes.size(); i++) {
-//                    Recipe recipe = recipes.get(i);
-//                    fetchMediaForRecipe(recipe,i,recipeTrendingAdapter);
-//                    fetchMediaForRecipe(recipe,i,top100RecipeAdapter);
-//                }
             }
         });
         viewModel.getChangeDateUsers().observe(getViewLifecycleOwner(), new Observer<ArrayList<User>>() {
             @Override
             public void onChanged(ArrayList<User> users) {
                 popularCreatorsAdapter.Update(users);
-
-//                for (int i = 0; i < users.size(); i++) {
-//                    fetchMediaForUser(users.get(i),i,popularCreatorsAdapter);
-//                }
             }
         });
     }
@@ -193,7 +186,6 @@ public class HomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Media media = snapshot.getValue(Media.class);
                 userMedias.put(user.getId(),media);
-//                adapter.notifyItemChanged(pos);
                 future.complete(null);
             }
 
@@ -210,6 +202,7 @@ public class HomeFragment extends Fragment {
                 recipes.clear();
                 for (DataSnapshot recipeSnapshot:snapshot.getChildren()) {
                     Recipe recipe = recipeSnapshot.getValue(Recipe.class);
+                    if (!recipe.isPublic()) continue;
                     recipes.add(recipe);
                     fetchMediaForRecipe(recipe);
                     fetchUserForRecipe(recipe);
@@ -236,6 +229,7 @@ public class HomeFragment extends Fragment {
                 users.clear();
                 for (DataSnapshot userSnapshot:snapshot.getChildren()) {
                     User user = userSnapshot.getValue(User.class);
+                    if (user.getAccountType() != 1) continue;
                     users.add(user);
                     fetchMediaForUser(user);
                 }
@@ -253,6 +247,13 @@ public class HomeFragment extends Fragment {
 
             }
         });
+    }
+    public void RecipeDetail(Recipe recipe) {
+        Intent intent = new Intent(getContext(), RecipeDetailActivity.class);
+        intent.putExtra("recipe",recipe);
+        intent.putExtra("recipeMedia",recipeMedias.get(recipe.getId()));
+        intent.putExtra("recipeOwner",recipeUsers.get(recipe.getId()));
+        startActivity(intent);
     }
     private void RecyclerViewManager() {
         recipeTrendingAdapter = new RecyclerViewRecipeTrendingAdapter(getContext(),recipes,this);

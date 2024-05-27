@@ -1,6 +1,7 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.SaveUser;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -121,7 +122,7 @@ public class SignInActivity extends AppCompatActivity {
         String password = passwordEditText.getText().toString().trim();
 
         if (!ValidateForm(email,password)) return;
-        progressDialog = new ProgressDialog(this);
+        progressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
         progressDialog.setMessage("Please wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();
@@ -140,6 +141,7 @@ public class SignInActivity extends AppCompatActivity {
                                     Toast.makeText(SignInActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
                                     Intent intent = new Intent(SignInActivity.this, MainActivity.class);
                                     intent.putExtra("user", user);
+                                    SaveUser(SignInActivity.this,user);
                                     startActivity(intent);
                                     finish();
                                     progressDialog.dismiss();
