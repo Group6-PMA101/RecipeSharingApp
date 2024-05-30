@@ -31,6 +31,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -52,6 +53,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.UserFollower;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
+import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -63,6 +65,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class RecipeDetailActivity extends AppCompatActivity {
+    private static final int REQUEST_CODE_ACTIVITY_BACK = 1;
     private LinearLayout
             layout_ingredients,
             layout_instructions,
@@ -104,13 +107,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private DatabaseReference databaseReferenceComment;
     private SimpleExoPlayer player;
     private static RecipeDetailEventListener eventListener;
+    private static RecipeEventListener recipeEventListener;
     private boolean isShow = true; //True = Show; False = Hide;
     private boolean isFollow = false; //True = UnFollow; False = Follow;
     @Override
     protected void onStop() {
         super.onStop();
     }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -207,7 +210,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
         btn_rate_recipe.setOnClickListener(v -> {
             Intent intent = new Intent(this, RateRecipeActivity.class);
             intent.putExtra("recipe",recipe);
-            startActivity(intent);
+            startActivityForResult(intent,REQUEST_CODE_ACTIVITY_BACK);
         });
         btn_send_comment.setOnClickListener(v -> {
             String content = edt_input_comment.getText().toString().trim();
@@ -238,6 +241,35 @@ public class RecipeDetailActivity extends AppCompatActivity {
             ResizeLayoutComment();
         });
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_ACTIVITY_BACK) {
+            if (resultCode == RESULT_OK) {
+                new FirebaseUtils().getDataFromFirebaseById(REALTIME_RECIPES, recipe.getId(), new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        recipe = snapshot.getValue(Recipe.class);
+                        recipeEventListener.onDataChange(recipe);
+                        if (recipe.getTotalReviews() == 0) {
+                            tv_review_count.setText("(No ratings for this recipe yet)");
+                        } else {
+                            tv_review_count.setText("(" + recipe.getTotalReviews() + " Reviews)");
+                        }
+                        tv_averageRating.setText(String.valueOf(recipe.getAverageRating()));
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+            }
+        }
+    }
+
     private void ResizeLayoutComment() {
         int totalHeight = 0;
         if (isShow) {
@@ -362,7 +394,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
         fetchCommentForRecipe(recipe);
         checkChefFollower(null);
     }
-
     private void checkChefFollower(ProgressDialog progressDialog) {
         new FirebaseUtils().getAllDataByKey(REALTIME_FOLLOWERS, "userId", GetUser(this).getId(), new ValueEventListener() {
             @Override
@@ -621,6 +652,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private void GetData() {
         Intent intent = getIntent();
         recipe = (Recipe) intent.getSerializableExtra("recipe");
+        Log.e("Check get data recipe",recipe.toString());
         recipeMedia = (Media) intent.getSerializableExtra("recipeMedia");
         recipeOwner = (User) intent.getSerializableExtra("recipeOwner");
         ownerMedia = (Media) intent.getSerializableExtra("userMedia");
@@ -630,6 +662,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
     }
     public static void setRecipeDetailEventListener(RecipeDetailEventListener listener) {
         eventListener = listener;
+    }
+    public static void setRecipeEventListener(RecipeEventListener listener) {
+        recipeEventListener = listener;
     }
     private void initUI() {
         databaseReferenceComment = FirebaseDatabase.getInstance().getReference(REALTIME_COMMENTS);

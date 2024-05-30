@@ -42,6 +42,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
+import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 
 import org.checkerframework.checker.units.qual.A;
 
@@ -56,7 +57,7 @@ import java.util.concurrent.CompletableFuture;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements RecipeDetailEventListener {
+public class HomeFragment extends Fragment implements RecipeDetailEventListener, RecipeEventListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -232,7 +233,6 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener 
                 });
 
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -265,7 +265,8 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener 
     }
     public void RecipeDetail(Recipe recipe) {
         Intent intent = new Intent(getContext(), RecipeDetailActivity.class);
-        RecipeDetailActivity.setRecipeDetailEventListener(HomeFragment.this);
+        RecipeDetailActivity.setRecipeEventListener(this);
+        RecipeDetailActivity.setRecipeDetailEventListener(this);
         intent.putExtra("recipe",recipe);
         intent.putExtra("recipeMedia",recipeMedias.get(recipe.getId()));
         intent.putExtra("recipeOwner",recipeUsers.get(recipe.getUserId()));
@@ -420,5 +421,17 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener 
     @Override
     public void onFollowEvent(String userId,User user) {
         recipeUsers.put(userId,user);
+    }
+
+    @Override
+    public void onDataChange(Recipe recipe) {
+        recipeTrendingAdapter.Update(recipes);
+        top100RecipeAdapter.Update(recipes);
+        for (int i = 0; i < recipes.size(); i++) {
+            if (recipes.get(i).getId().equals(recipe.getId())) {
+                recipes.set(i, recipe);
+                break;
+            }
+        }
     }
 }

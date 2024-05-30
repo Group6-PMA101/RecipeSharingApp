@@ -125,7 +125,7 @@ public class RateRecipeActivity extends AppCompatActivity {
                                 .setValue(recipe).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        setResult(RESULT_CANCELED);
+                                        setResult(RESULT_OK);
                                         finish();
                                     }
                                 });
