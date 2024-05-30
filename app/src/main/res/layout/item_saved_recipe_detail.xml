@@ -64,6 +64,7 @@
                 android:layout_weight="1"
                 android:layout_height="wrap_content"/>
             <RelativeLayout
+                android:id="@+id/btn_more"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="@drawable/cus_bgr_rounded_corner_16"
@@ -91,7 +92,7 @@
             android:text="Recipe Name"
             android:textColor="@color/white_000"/>
         <TextView
-            android:id="@+id/tv_recipe_ingredients_cook_time"
+            android:id="@+id/tv_cook_time"
             android:layout_marginTop="6dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

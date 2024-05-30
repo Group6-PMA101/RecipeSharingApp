@@ -1,8 +1,11 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -17,12 +20,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationMainAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
+import com.ph41626.pma101_recipesharingapplication.Model.RecipeCollection;
+import com.ph41626.pma101_recipesharingapplication.Model.Recipe_RecipeCollection;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -45,38 +53,160 @@ public class MainActivity extends AppCompatActivity {
     public static final String REALTIME_COMMENTS = "REALTIME_COMMENTS";
     public static final String REALTIME_REVIEWS = "REALTIME_REVIEWS";
     public static final String REALTIME_FOLLOWERS = "REALTIME_FOLLOWERS";
+    public static final String REALTIME_RECIPE_COLLECTIONS = "REALTIME_RECIPE_COLLECTIONS";
+    public static final String REALTIME_RECIPE_RECIPECOLLECTIONS = "REALTIME_RECIPE_RECIPECOLLECTIONS";
 
     private MeowBottomNavigation bottom_navigation_main;
     private ViewPagerBottomNavigationMainAdapter bottom_navigation_main_adapter;
     private ViewPager2 view_pager_main;
 
     private User currentUser = new User();
-
     public User getCurrentUser() {
         return currentUser;
     }
-
     public void setCurrentUser(User currentUser) {
         this.currentUser = currentUser;
     }
 
     private FirebaseUtils firebaseUtils;
     private ViewModel viewModel;
+
+    public ArrayList<RecipeCollection> recipeCollections = new ArrayList<>();
+    public HashMap<String,ArrayList<Recipe_RecipeCollection>> recipeRecipeCollectionHashMap = new HashMap<>();
+    public HashMap<String,ArrayList<Recipe>> recipeForRecipeCollection = new HashMap<>();
+    public HashMap<String,Media> recipeMedia = new HashMap<>();
+    public CompletableFuture<Void> recipeCollectionFuture = new CompletableFuture<>();
+
+    public List<CompletableFuture<Void>> recipeCollectionFutures = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         initUI();
-        GetUser();
+        viewModel.changeCurrentUser(GetUser(this));
         BottomNavigationManager();
 //        GetDataFromFireBase();
+        fetchRecipeCollectionForUser();
+
+        recipeCollectionFuture.thenAccept(result -> {
+//            if (recipeCollections != null && !recipeCollections.isEmpty()) {
+//                for (RecipeCollection recipeCollection:recipeCollections) {
+//
+//                }
+//            }
+        });
+    }
+    private void fetchRecipeCollectionForUser() {
+        new FirebaseUtils().getAllDataByKeyRealTime(REALTIME_RECIPE_COLLECTIONS, "userId", GetUser(this).getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                recipeCollections.clear();
+                recipeRecipeCollectionHashMap.clear();
+                recipeForRecipeCollection.clear();
+                recipeMedia.clear();
+                recipeCollectionFutures.clear();
+
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    RecipeCollection recipeCollection = child.getValue(RecipeCollection.class);
+                    recipeCollections.add(recipeCollection);
+                    if (recipeCollection != null && recipeCollection.getNumberOfRecipes() > 0) {
+                        CompletableFuture<Void> future = new CompletableFuture<>();
+                        recipeCollectionFutures.add(future);
+                        fetchRecipeRecipeCollection(future,recipeCollection);
+                    }
+                }
+                recipeCollectionFuture.complete(null);
+                viewModel.changeRecipeCollectionForUser(recipeCollections);
+
+                CompletableFuture<Void> allOf = CompletableFuture.allOf(recipeCollectionFutures.toArray(new CompletableFuture[0]));
+                allOf.thenRun(() -> {
+                    Log.e("Check size",recipeForRecipeCollection.size() + "");
+                    Log.e("Check size",recipeMedia.size() + "");
+                    viewModel.changeRecipeForRecipeCollection(recipeForRecipeCollection);
+                }).exceptionally(e -> {
+                    e.printStackTrace();
+                    return null;
+                });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
-    private void GetUser() {
-        Intent intent = getIntent();
-        currentUser = (User) intent.getSerializableExtra("user");
-        viewModel.changeCurrentUser(currentUser);
+    private void fetchRecipeRecipeCollection(CompletableFuture<Void> future,RecipeCollection recipeCollection) {
+        new FirebaseUtils().getAllDataByKey(REALTIME_RECIPE_RECIPECOLLECTIONS, "recipeCollectionId", recipeCollection.getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<Recipe_RecipeCollection> recipeRecipeCollections = new ArrayList<>();
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    Recipe_RecipeCollection recipeRecipeCollection = child.getValue(Recipe_RecipeCollection.class);
+                    recipeRecipeCollections.add(recipeRecipeCollection);
+                }
+                recipeRecipeCollectionHashMap.put(recipeCollection.getId(),recipeRecipeCollections);
+
+                List<CompletableFuture<Void>> mediaFutures = new ArrayList<>();
+                for (Recipe_RecipeCollection recipeRecipeCollection:recipeRecipeCollections) {
+                    CompletableFuture<Void> mediaFuture = new CompletableFuture<>();
+                    mediaFutures.add(mediaFuture);
+                    fetchRecipeForRecipeCollection(mediaFuture,recipeCollection,recipeRecipeCollection);
+                }
+                CompletableFuture.allOf(mediaFutures.toArray(new CompletableFuture[0]))
+                        .thenRun(() -> future.complete(null))
+                        .exceptionally(e -> {
+                            e.printStackTrace();
+                            future.complete(null);
+                            return null;
+                        });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void fetchRecipeForRecipeCollection(CompletableFuture<Void> future,RecipeCollection recipeCollection,Recipe_RecipeCollection recipeRecipeCollection) {
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_RECIPES, recipeRecipeCollection.getRecipeId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Recipe recipe = snapshot.getValue(Recipe.class);
+                ArrayList<Recipe> newArr = new ArrayList<>();
+                if (recipeForRecipeCollection.containsKey(recipeCollection.getId())
+                        && recipeForRecipeCollection.get(recipeCollection.getId()) != null
+                        && !recipeForRecipeCollection.get(recipeCollection.getId()).isEmpty()) {
+                    newArr = recipeForRecipeCollection.get(recipeCollection.getId());
+                }
+                newArr.add(recipe);
+                recipeForRecipeCollection.put(recipeCollection.getId(),newArr);
+                fetchMediaForRecipe(future,recipe);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void fetchMediaForRecipe(CompletableFuture<Void> future, Recipe recipe) {
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Media media = snapshot.getValue(Media.class);
+                recipeMedia.put(recipe.getId(),media);
+                future.complete(null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void GetDataFromFireBase() {
@@ -85,7 +215,6 @@ public class MainActivity extends AppCompatActivity {
         GetRecipes(firebaseUtils,REALTIME_RECIPES);
         GetMedias(firebaseUtils,REALTIME_MEDIAS);
     }
-
     private void GetMedias(FirebaseUtils firebaseUtils,String path) {
         firebaseUtils.getDataFromFirebase(path, new ValueEventListener() {
             @Override
@@ -99,7 +228,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void GetRecipes(FirebaseUtils firebaseUtils,String path) {
         firebaseUtils.getDataFromFirebase(path, new ValueEventListener() {
             @Override
@@ -113,13 +241,12 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void BottomNavigationManager() {
         view_pager_main.setAdapter(bottom_navigation_main_adapter);
         view_pager_main.setUserInputEnabled(false);
         bottom_navigation_main.add(new MeowBottomNavigation.Model(0, R.drawable.ic_home));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(1, R.drawable.ic_bookmark));
-        if (currentUser.getAccountType() != 0) bottom_navigation_main.add(new MeowBottomNavigation.Model(2, R.drawable.ic_add));
+        if (GetUser(this).getAccountType() != 0) bottom_navigation_main.add(new MeowBottomNavigation.Model(2, R.drawable.ic_add));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(3, R.drawable.ic_notification));
         bottom_navigation_main.add(new MeowBottomNavigation.Model(4, R.drawable.ic_user));
         bottom_navigation_main.show(0,true);
@@ -164,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void initUI() {
         bottom_navigation_main = findViewById(R.id.bottomNavigationMain);
         view_pager_main = findViewById(R.id.viewPagerMain);

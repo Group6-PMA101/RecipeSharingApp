@@ -1,19 +1,25 @@
 package com.ph41626.pma101_recipesharingapplication.Model;
 
-public class RecipeCollection {
+import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
+
+import java.io.Serializable;
+
+public class RecipeCollection implements Serializable {
     private String id;
     private String userId;
     private String name;
     private int numberOfRecipes;
 
     public RecipeCollection() {
+        this.id = RandomID();
+        this.numberOfRecipes = 0;
     }
 
-    public RecipeCollection(String id, String userId, String name, int numberOfRecipes) {
-        this.id = id;
+    public RecipeCollection(String userId, String name) {
+        this.id = RandomID();
         this.userId = userId;
         this.name = name;
-        this.numberOfRecipes = numberOfRecipes;
+        this.numberOfRecipes = 0;
     }
 
     public String getId() {
@@ -46,5 +52,15 @@ public class RecipeCollection {
 
     public void setNumberOfRecipes(int numberOfRecipes) {
         this.numberOfRecipes = numberOfRecipes;
+    }
+
+    @Override
+    public String toString() {
+        return "RecipeCollection{" +
+                "id='" + id + '\'' +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", numberOfRecipes=" + numberOfRecipes +
+                '}';
     }
 }

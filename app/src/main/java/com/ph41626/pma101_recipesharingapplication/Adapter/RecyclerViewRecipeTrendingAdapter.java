@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -95,14 +96,17 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
                         placeholder(R.drawable.default_avatar).
                         into(holder.img_user_avatar);
             }
-            if (homeFragment.recipeUsers.get(recipe.getId()) != null) {
-                holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getId()).getName());
+            if (homeFragment.recipeUsers.containsKey(recipe.getUserId()) && homeFragment.recipeUsers.get(recipe.getUserId()) != null) {
+                holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getUserId()).getName());
             }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     homeFragment.RecipeDetail(recipe);
                 }
+            });
+            holder.btn_save.setOnClickListener(v -> {
+                homeFragment.SaveRecipe(recipe);
             });
         }
     }
@@ -116,6 +120,7 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
         TextView tv_recipe_name,tv_recipe_owner,tv_recipe_averageRating;
         ImageView img_recipe_thumbnail,img_user_avatar;
         LinearLayout btn_play;
+        RelativeLayout btn_save;
         ProgressBar pb_load_img;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -126,6 +131,7 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
             img_user_avatar = itemView.findViewById(R.id.img_user_avatar);
             btn_play = itemView.findViewById(R.id.btn_play);
             pb_load_img = itemView.findViewById(R.id.pb_load_img);
+            btn_save = itemView.findViewById(R.id.btn_save);
         }
     }
 }

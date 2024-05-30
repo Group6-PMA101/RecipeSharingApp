@@ -59,8 +59,8 @@ public class RecyclerViewTop100RecipeAdapter extends RecyclerView.Adapter<Recycl
                         placeholder(R.drawable.default_avatar).
                         into(holder.img_recipe_thumbnail);
             }
-            if (homeFragment.recipeUsers.containsKey(recipe.getId())) {
-                holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getId()).getName());
+            if (homeFragment.recipeUsers.containsKey(recipe.getUserId())) {
+                holder.tv_recipe_owner.setText(homeFragment.recipeUsers.get(recipe.getUserId()).getName());
             }
             holder.pb_load_img.setVisibility(View.GONE);
 

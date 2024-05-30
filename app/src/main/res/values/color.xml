@@ -3,8 +3,10 @@
     <color name="transparent">#00000000</color>
     <color name="black_000">#FF000000</color>
     <color name="black_333">#333333</color>
+    <color name="black_333_80">#80333333</color>
     <color name="black_333_99">#FF333333</color>
     <color name="white_1C1">#FFC1C1C1</color>
+    <color name="white_1C1_50">#50C1C1C1</color>
     <color name="white_1F1">#F1F1F1</color>
     <color name="white_030_CC">#CC303030</color>
     <color name="white_FFF_80">#90FFFFFF</color>

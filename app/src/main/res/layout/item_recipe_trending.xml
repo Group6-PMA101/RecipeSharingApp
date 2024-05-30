@@ -67,6 +67,7 @@
                     android:padding="6dp"/>
             </LinearLayout>
             <RelativeLayout
+                android:id="@+id/btn_save"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="6dp"

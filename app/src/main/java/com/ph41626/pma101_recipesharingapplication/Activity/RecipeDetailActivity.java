@@ -11,6 +11,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.findObjectById;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.isVideo;
 import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.SaveUser;
 import static com.ph41626.pma101_recipesharingapplication.Services.VideoDialogUtil.ShowVideoDialog;
 
 import android.app.AlertDialog;
@@ -50,6 +51,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.UserFollower;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
+import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -94,14 +96,21 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private ArrayList<Media> instructionMedias = new ArrayList<>();
     private List<CompletableFuture<Void>> instructionFutures = new ArrayList<>();
     private List<CompletableFuture<Void>> commentFutures = new ArrayList<>();
+    private UserFollower userFollower = new UserFollower();
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
     private ProgressDialog progressDialog;
-
+    private List<CompletableFuture<Void>> futures = new ArrayList<>();
     private DatabaseReference databaseReferenceComment;
-
     private SimpleExoPlayer player;
+    private static RecipeDetailEventListener eventListener;
     private boolean isShow = true; //True = Show; False = Hide;
+    private boolean isFollow = false; //True = UnFollow; False = Follow;
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,64 +124,82 @@ public class RecipeDetailActivity extends AppCompatActivity {
         GetData();
         SetUpUi();
         SetUpButton();
-
     }
 
     private void SetUpButton() {
-        btn_follow.setOnClickListener(v -> {
-            progressDialog.show();
-            new FirebaseUtils().getAllDataByKey(REALTIME_FOLLOWERS, "userId", GetUser(this).getId(), new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    UserFollower userFollower = snapshot.getValue(UserFollower.class);
-
-                    if (userFollower == null) {
-
-                    } else {
-
-                    }
-
-                    //Tang follower cua chef sau do tang following cua user
-                    //Giam follwer cua chef sau do giam follwing cua user
-
-//                    if (userFollower == null) {
-//                        userFollower = new UserFollower();
-//                        userFollower.setUserId(GetUser(RecipeDetailActivity.this).getId());
-//                        userFollower.setChefId(recipeOwner.getId());
-//                        userFollower.setFollowDate(new Date());
-//                        recipeOwner.setFollowersCount(recipeOwner.getFollowersCount() + 1);
-//                        FirebaseDatabase
-//                                .getInstance()
-//                                .getReference(REALTIME_FOLLOWERS)
-//                                .child(userFollower.getId())
-//                                .setValue(userFollower)
-//                                .addOnCompleteListener(task -> {
-//                                    FirebaseDatabase
-//                                            .getInstance()
-//                                            .getReference(REALTIME_RECIPES)
-//                                            .child(recipe.getId())
-//                                            .setValue(recipe)
-//                                            .addOnCompleteListener(recipeTask -> {
-//                                                progressDialog.dismiss();
-//                                            });
-//                                });
-//                    } else {
-//                        FirebaseDatabase
-//                                .getInstance()
-//                                .getReference(REALTIME_FOLLOWERS)
-//                                .child(userFollower.getId())
-//                                .setValue(userFollower)
-//                                .addOnCompleteListener(task -> {
-//                                    progressDialog.dismiss();
-//                                });
-//                    }
+        btn_follow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (recipeOwner.getId().equals(GetUser(RecipeDetailActivity.this).getId())) {
+                    Toast.makeText(RecipeDetailActivity.this, "You cannot follow yourself!", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+                progressDialog.show();
+                User user = GetUser(RecipeDetailActivity.this);
+                CompletableFuture<Void> addFollower = new CompletableFuture<>();
+                futures.add(addFollower);
+                if (!isFollow) {
+                    userFollower = new UserFollower();
+                    userFollower.setUserId(GetUser(RecipeDetailActivity.this).getId());
+                    userFollower.setChefId(recipeOwner.getId());
+                    userFollower.setFollowDate(new Date());
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
+                    recipeOwner.setFollowersCount(recipeOwner.getFollowersCount() + 1);
+                    user.setFollowingCount(user.getFollowingCount() + 1);
+                    FirebaseDatabase
+                            .getInstance()
+                            .getReference(REALTIME_FOLLOWERS)
+                            .child(userFollower.getId())
+                            .setValue(userFollower)
+                            .addOnCompleteListener(task -> {
+                                addFollower.complete(null);
+                            });
+                } else {
+                    recipeOwner.setFollowersCount(recipeOwner.getFollowersCount() - 1);
+                    user.setFollowingCount(user.getFollowingCount() - 1);
+                    FirebaseDatabase
+                            .getInstance()
+                            .getReference(REALTIME_FOLLOWERS)
+                            .child(userFollower.getId())
+                            .setValue(null)
+                            .addOnCompleteListener(task -> {
+                                addFollower.complete(null);
+                            });
                 }
-            });
+                CompletableFuture<Void> changeChef = new CompletableFuture<>();
+                futures.add(changeChef);
+                FirebaseDatabase
+                        .getInstance()
+                        .getReference(REALTIME_USERS)
+                        .child(recipeOwner.getId())
+                        .child("followersCount")
+                        .setValue(recipeOwner.getFollowersCount())
+                        .addOnCompleteListener(task -> {
+                            changeChef.complete(null);
+                        });
+                CompletableFuture<Void> changeUser = new CompletableFuture<>();
+                futures.add(changeChef);
+                FirebaseDatabase
+                        .getInstance()
+                        .getReference(REALTIME_USERS)
+                        .child(user.getId())
+                        .child("followingCount")
+                        .setValue(recipeOwner.getFollowersCount())
+                        .addOnCompleteListener(task -> {
+                            SaveUser(RecipeDetailActivity.this,user);
+                            changeUser.complete(null);
+                        });
+                CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+                allOf.thenRun(() -> {
+                    SaveUser(RecipeDetailActivity.this,user);
+                    tv_user_follower.setText("Follower " + recipeOwner.getFollowersCount());
+                    eventListener.onFollowEvent(recipe.getUserId(),recipeOwner);
+                    checkChefFollower(progressDialog);
+                }).exceptionally(e -> {
+                    e.printStackTrace();
+                    return null;
+                });
+            }
         });
         btn_play.setOnClickListener(v -> {
             ShowVideoDialog(this,recipeMedia.getUrl());
@@ -181,8 +208,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
             Intent intent = new Intent(this, RateRecipeActivity.class);
             intent.putExtra("recipe",recipe);
             startActivity(intent);
-        });
-        btn_follow.setOnClickListener(v -> {
         });
         btn_send_comment.setOnClickListener(v -> {
             String content = edt_input_comment.getText().toString().trim();
@@ -220,7 +245,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
         } else {
             for (int i = 0; i < 3; i++) {
                 View child = layout_comments.getChildAt(i);
-                totalHeight += child.getHeight();
+                if (child != null) {
+                    totalHeight += child.getHeight();
+                }
             }
         }
         LinearLayout.LayoutParams layoutParams = (LinearLayout.LayoutParams) layout_comments.getLayoutParams();
@@ -249,18 +276,25 @@ public class RecipeDetailActivity extends AppCompatActivity {
         } else {
             tv_review_count.setText("(" + recipe.getTotalReviews() + " Reviews)");
         }
-        if (recipeOwner.getMediaId() == null || ownerMedia == null) {
-            img_user_avatar.setImageResource(R.drawable.default_avatar);
-        } else {
-            Glide.with(this)
-                    .asBitmap()
-                    .load(ownerMedia.getUrl())
-                    .error(R.drawable.default_avatar)
-                    .into(img_user_avatar);
-        }
-        tv_user_name.setText(recipeOwner.getName());
-        tv_user_follower.setText("Follower " + recipeOwner.getFollowersCount());
 
+        if (recipeOwner == null) {
+            fetchRecipeOwner();
+        } else {
+            tv_user_name.setText(recipeOwner.getName());
+            tv_user_follower.setText("Follower " + recipeOwner.getFollowersCount());
+            if (ownerMedia != null) {
+                Glide.with(this)
+                        .asBitmap()
+                        .load(ownerMedia.getUrl())
+                        .error(R.drawable.default_avatar)
+                        .into(img_user_avatar);
+            } else {
+                img_user_avatar.setImageResource(R.drawable.default_avatar);
+            }
+            if (recipeOwner.getMediaId() != null && !recipeOwner.getMediaId().isEmpty() && ownerMedia == null) {
+                fetchMediaForOwner();
+            }
+        }
 
         if (ingredients == null || ingredients.isEmpty()) {
             ingredients = new ArrayList<>();
@@ -326,6 +360,46 @@ public class RecipeDetailActivity extends AppCompatActivity {
         });
 
         fetchCommentForRecipe(recipe);
+        checkChefFollower(null);
+    }
+
+    private void checkChefFollower(ProgressDialog progressDialog) {
+        new FirebaseUtils().getAllDataByKey(REALTIME_FOLLOWERS, "userId", GetUser(this).getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.getChildrenCount() != 0) {
+                    for (DataSnapshot child:snapshot.getChildren()) {
+                        UserFollower user = child.getValue(UserFollower.class);
+                        if(user.getUserId().equals(GetUser(RecipeDetailActivity.this).getId())) {
+                            isFollow = true;
+                            userFollower = user;
+                            break;
+                        } else {
+                            isFollow = false;
+                            userFollower = null;
+                        }
+                    }
+                } else {
+                    isFollow = false;
+                    userFollower = null;
+                }
+
+
+                if (isFollow) {
+                    btn_follow.setText("Unfollow");
+                } else {
+                    btn_follow.setText("Follow");
+                }
+                if (progressDialog != null) {
+                    progressDialog.dismiss();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
     private void fetchIngredientForRecipe() {
         new FirebaseUtils().getAllDataByKey(REALTIME_INGREDIENTS, "recipeId", recipe.getId(), new ValueEventListener() {
@@ -428,12 +502,13 @@ public class RecipeDetailActivity extends AppCompatActivity {
                     for (Comment comment:comments) {
                         View view = LayoutInflater
                                 .from(RecipeDetailActivity.this)
-                                .inflate(R.layout.item_comment,null,false);
+                                .inflate(R.layout.item_comment,null);
                         ImageView img_user_avatar = view.findViewById(R.id.img_user_avatar);
                         TextView tv_user_name = view.findViewById(R.id.tv_user_name),
                                 tv_comment_content = view.findViewById(R.id.tv_comment_content);
-                        if (commentUser.get(comment.getId()).getMediaId() != null
-                                && !commentUser.get(comment.getId()).getMediaId().isEmpty()) {
+                        User user = commentUser.get(comment.getId());
+                        if (user.getMediaId() != null && !user.getMediaId().isEmpty()) {
+                            Media media = userMedia.get(commentUser.get(comment.getId()).getId());
                             Glide.with(RecipeDetailActivity.this)
                                     .asBitmap()
                                     .load(userMedia.get(commentUser.get(comment.getId()).getId()).getUrl())
@@ -487,11 +562,11 @@ public class RecipeDetailActivity extends AppCompatActivity {
             future.complete(null);
             return;
         }
-        if (userMedia.containsKey(user.getId()) && userMedia.get(user.getId()) != null) {
+        if (userMedia.containsKey(user.getId())) {
             future.complete(null);
             return;
         }
-        new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipe.getId(), new ValueEventListener() {
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Media media = snapshot.getValue(Media.class);
@@ -505,7 +580,44 @@ public class RecipeDetailActivity extends AppCompatActivity {
             }
         });
     }
+    private void fetchRecipeOwner() {
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_USERS, recipe.getUserId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                recipeOwner = snapshot.getValue(User.class);
+                tv_user_name.setText(recipeOwner.getName());
+                tv_user_follower.setText("Follower " + recipeOwner.getFollowersCount());
+                if (recipeOwner.getMediaId() != null && !recipeOwner.getMediaId().isEmpty()) {
+                    fetchMediaForOwner();
+                } else {
+                    img_user_avatar.setImageResource(R.drawable.default_avatar);
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void fetchMediaForOwner() {
+        new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipeOwner.getMediaId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ownerMedia = snapshot.getValue(Media.class);
+                Glide.with(RecipeDetailActivity.this)
+                        .asBitmap()
+                        .load(ownerMedia.getUrl())
+                        .error(R.drawable.default_avatar)
+                        .into(img_user_avatar);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     private void GetData() {
         Intent intent = getIntent();
         recipe = (Recipe) intent.getSerializableExtra("recipe");
@@ -515,6 +627,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
         ingredients = (ArrayList<Ingredient>) intent.getSerializableExtra("ingredients");
         instructions = (ArrayList<Instruction>) intent.getSerializableExtra("instructions");
         instructionMedias = (ArrayList<Media>) intent.getSerializableExtra("instructionMedias");
+    }
+    public static void setRecipeDetailEventListener(RecipeDetailEventListener listener) {
+        eventListener = listener;
     }
     private void initUI() {
         databaseReferenceComment = FirebaseDatabase.getInstance().getReference(REALTIME_COMMENTS);

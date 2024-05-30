@@ -6,6 +6,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.STORAGE_MEDIAS;
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -27,6 +28,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,6 +46,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.ph41626.pma101_recipesharingapplication.Activity.EditProfileActivity;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
@@ -53,6 +56,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.EditProfileEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Activity.UpdateRecipeActivity;
 
@@ -66,7 +70,7 @@ import java.util.concurrent.CompletableFuture;
  * Use the {@link ProfileFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements EditProfileEventListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -108,6 +112,7 @@ public class ProfileFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
+    private Button btn_edit_profile;
     private ImageView img_avatar_user;
     private TextView tv_name_user, tv_recipes_count_user, tv_follower_count_user, tv_following_count_user;
     private MainActivity mainActivity;
@@ -138,6 +143,12 @@ public class ProfileFragment extends Fragment {
         initUI(view);
         UpdateUiWhenDataChange();
         BottomNavigationManager();
+
+        btn_edit_profile.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), EditProfileActivity.class);
+            EditProfileActivity.setEditProfileEventListener(this);
+            startActivity(intent);
+        });
         return view;
     }
 
@@ -354,7 +365,6 @@ public class ProfileFragment extends Fragment {
                 tv_recipes_count_user.setText(String.valueOf(recipes.size()));
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
                 allOf.thenRun(() -> {
-//                    Toast.makeText(getContext(), "Completed.", Toast.LENGTH_SHORT).show();
                     viewModel.changeAllRecipeByChef(recipes);
                 }).exceptionally(e -> {
                     e.printStackTrace();
@@ -494,6 +504,7 @@ public class ProfileFragment extends Fragment {
         }
     }
     private void initUI(View view) {
+        btn_edit_profile = view.findViewById(R.id.btn_edit_profile);
         storageReference = FirebaseStorage.getInstance().getReference(STORAGE_MEDIAS);
         databaseReferenceMedias = FirebaseDatabase.getInstance().getReference(REALTIME_MEDIAS);
         databaseReferenceIngredients = FirebaseDatabase.getInstance().getReference(REALTIME_INGREDIENTS);
@@ -508,5 +519,10 @@ public class ProfileFragment extends Fragment {
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         viewPager2_recipe = view.findViewById(R.id.viewPager2_recipe);
         bottomNavigationView = view.findViewById(R.id.bottomNavigationViewInventory);
+    }
+
+    @Override
+    public void changeData() {
+        viewModel.changeCurrentUser(GetUser(getContext()));
     }
 }
