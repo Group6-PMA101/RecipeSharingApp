@@ -10,6 +10,7 @@ import static com.ph41626.pma101_recipesharingapplication.Services.Services.Crea
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.CreateNewInstruction;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.findObjectById;
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
 import static com.ph41626.pma101_recipesharingapplication.Services.VideoDialogUtil.ShowVideoDialog;
 
 import android.app.AlertDialog;
@@ -242,7 +243,7 @@ public class CreateRecipeFragment extends Fragment {
                     newRecipe.setLastUpdateDate(newDate);
                     newRecipe.setTotalReviews(0);
                     newRecipe.setAverageRating(0);
-                    newRecipe.setUserId(mainActivity.getCurrentUser().getId());
+                    newRecipe.setUserId(GetUser(getContext()).getId());
                     progressDialog.setMessage("Please wait...");
                     progressDialog.setCancelable(false);
                     progressDialog.show();

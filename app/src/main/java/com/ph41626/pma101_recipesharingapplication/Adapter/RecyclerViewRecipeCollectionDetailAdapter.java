@@ -59,6 +59,16 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
     public void onBindViewHolder(@NonNull RecyclerViewRecipeCollectionDetailAdapter.ViewHolder holder, int position) {
         Recipe recipe = recipes.get(position);
         if (recipe != null) {
+            holder.btn_more.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu(view,recipe);
+                }
+            });
+            if (!recipe.isPublic()) {
+                holder.tv_recipe_name.setText("This recipe has been hidden or deleted by the user.");
+                return;
+            }
             holder.tv_recipe_name.setText(recipe.getName());
             holder.tv_recipe_averageRating.setText(String.valueOf(recipe.getAverageRating()));
             holder.tv_cook_time.setText("Cook time: " + recipe.getCookTime() + " min");
@@ -69,12 +79,7 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
                     placeholder(R.drawable.caption).
                     into(holder.img_recipe_thumbnail);
             holder.pb_load_img.setVisibility(View.GONE);
-            holder.btn_more.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PopupMenu(view,recipe);
-                }
-            });
+
             holder.itemView.setOnClickListener(v -> {
                 recipeCollectionActivity.RecipeDetail(recipe);
             });

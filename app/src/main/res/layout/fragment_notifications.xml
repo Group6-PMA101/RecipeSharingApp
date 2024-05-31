@@ -5,10 +5,22 @@
     android:layout_height="match_parent"
     tools:context=".Fragment.NotificationsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:padding="24dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+                <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Notification"
+                android:fontFamily="@font/be_vietnam_pro_semibold"
+                android:textSize="24.sp"
+                android:textColor="@color/black_333"/>
+        </LinearLayout>
+    </ScrollView>
 
 </FrameLayout>

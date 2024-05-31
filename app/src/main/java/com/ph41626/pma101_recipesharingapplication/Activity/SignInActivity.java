@@ -194,8 +194,8 @@ public class SignInActivity extends AppCompatActivity {
             return false;
         }
 
-        if (!password.matches(".*[a-z].*")) {
-            passwordEditText.setError("Password must contain at least one lowercase letter!");
+        if (!password.matches(".*\\d.*")) {
+            passwordEditText.setError("Password must contain at least one digit!");
             return false;
         }
 
@@ -204,9 +204,7 @@ public class SignInActivity extends AppCompatActivity {
     public void onForgotPasswordClick() {
         String email = emailEditText.getText().toString().trim();
 
-        if (email.isEmpty()) {
-            Toast.makeText(this, "Vui lòng nhập email của bạn", Toast.LENGTH_SHORT).show();
-        } else {
+        if (ValidateEmail(email)) {
             mAuth.sendPasswordResetEmail(email)
                     .addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
