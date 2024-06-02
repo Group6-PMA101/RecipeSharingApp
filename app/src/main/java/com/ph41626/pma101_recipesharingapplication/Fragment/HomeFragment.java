@@ -18,18 +18,22 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Activity.RecipeDetailActivity;
+import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewAllRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewPopularCreatorsAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewRecipeTrendingAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewTop100RecipeAdapter;
@@ -44,12 +48,9 @@ import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 
-import org.checkerframework.checker.units.qual.A;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -114,6 +115,12 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
     private List<CompletableFuture<Void>> recipeFutures = new ArrayList<>();
     private List<CompletableFuture<Void>> userFutures = new ArrayList<>();
     private List<CompletableFuture<Void>> saveRecipeFutures = new ArrayList<>();
+    private RecyclerView recyclerView;
+    private RecyclerViewAllRecipeAdapter recipeAdapter;
+    private ArrayList<Recipe> recipeList;
+    private DatabaseReference databaseReference;
+    private EditText searchEditText;
+    private ProfileFragment profileFragment;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -126,8 +133,65 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         GetDataFromFirebase();
         UpdateUiWhenDataChange();
 
+        recyclerView = view.findViewById(R.id.rcv_search);
+        searchEditText = view.findViewById(R.id.searchEditText);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        search();
+
+
         return view;
     }
+
+
+    private void search(){
+        profileFragment = new ProfileFragment();
+        recipeList = new ArrayList<>();
+        recipeAdapter = new RecyclerViewAllRecipeAdapter(getContext(), recipeList, profileFragment);
+        recyclerView.setAdapter(recipeAdapter);
+
+        databaseReference = FirebaseDatabase.getInstance().getReference("REALTIME_RECIPES");
+        recipeAdapter.Update(new ArrayList<>());
+        searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String searchText = s.toString();
+                if (searchText.isEmpty()) {
+                    recipeList.clear();
+                    recipeAdapter.Update(recipeList);
+                } else {
+                    searchInFirebase(searchText);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void searchInFirebase(String searchText) {
+        databaseReference.orderByChild("name").startAt(searchText).endAt(searchText + "\uf8ff")
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        recipeList.clear();
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            Recipe recipe = snapshot.getValue(Recipe.class);
+                            recipeList.add(recipe);
+                        }
+                        recipeAdapter.Update(recipeList);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        // Handle possible errors
+                    }
+                });
+    }
+
 
     private void UpdateUiWhenDataChange() {
         viewModel.getChangeDataRecipes().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {

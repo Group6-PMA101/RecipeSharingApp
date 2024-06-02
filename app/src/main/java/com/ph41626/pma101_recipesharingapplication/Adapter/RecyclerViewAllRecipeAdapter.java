@@ -26,6 +26,7 @@ public class RecyclerViewAllRecipeAdapter extends RecyclerView.Adapter<RecyclerV
     private Context context;
     private ArrayList<Recipe> recipes;
     private ProfileFragment profileFragment;
+
     public RecyclerViewAllRecipeAdapter(Context context, ArrayList<Recipe> recipes, ProfileFragment profileFragment) {
         this.context = context;
         this.recipes = recipes;
@@ -43,6 +44,8 @@ public class RecyclerViewAllRecipeAdapter extends RecyclerView.Adapter<RecyclerV
         this.recipes = recipes;
         notifyDataSetChanged();
     }
+
+
     @NonNull
     @Override
     public RecyclerViewAllRecipeAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
