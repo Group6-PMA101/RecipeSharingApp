@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -47,6 +48,8 @@ import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
@@ -105,6 +108,8 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
     private RecyclerViewPopularCreatorsAdapter popularCreatorsAdapter;
     private ArrayList<User> users = new ArrayList<>();
     private ArrayList<Recipe> recipes = new ArrayList<>();
+    private ArrayList<Recipe> trendingRecipes = new ArrayList<>();
+    private ArrayList<Recipe> top100Recipes = new ArrayList<>();
     public HashMap<String,Media> recipeMedias = new HashMap<>();
     public HashMap<String,User> recipeUsers = new HashMap<>();
     public HashMap<String,Media> userMedias = new HashMap<>();
@@ -121,6 +126,7 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
+
         initUI(view);
         RecyclerViewManager();
         GetDataFromFirebase();
@@ -133,16 +139,50 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         viewModel.getChangeDataRecipes().observe(getViewLifecycleOwner(), new Observer<ArrayList<Recipe>>() {
             @Override
             public void onChanged(ArrayList<Recipe> recipes) {
-                recipeTrendingAdapter.Update(recipes);
-                top100RecipeAdapter.Update(recipes);
+                UpdateTrendingRecipes(recipes);
+                UpdateTop100Recipes(recipes);
             }
         });
         viewModel.getChangeDateUsers().observe(getViewLifecycleOwner(), new Observer<ArrayList<User>>() {
             @Override
             public void onChanged(ArrayList<User> users) {
+                Collections.sort(users, new Comparator<User>() {
+                    @Override
+                    public int compare(User u1, User u2) {
+                        return Integer.compare(u2.getFollowersCount(), u1.getFollowersCount());
+                    }
+                });
                 popularCreatorsAdapter.Update(users);
             }
         });
+    }
+    private void UpdateTrendingRecipes(ArrayList<Recipe> recipes) {
+        ArrayList<Recipe> trending = new ArrayList<>(recipes);
+        Collections.sort(trending, new Comparator<Recipe>() {
+            @Override
+            public int compare(Recipe r1, Recipe r2) {
+                return Long.compare(r2.getCreationDate().getTime(), r1.getCreationDate().getTime());
+            }
+        });
+//        if (trending.size() > 10) {
+//            trending = new ArrayList<>(trending.subList(0, 10));
+//        }
+        trendingRecipes = trending;
+        recipeTrendingAdapter.Update(trendingRecipes);
+    }
+    private void UpdateTop100Recipes(ArrayList<Recipe> recipes) {
+        ArrayList<Recipe> top100 = new ArrayList<>(recipes);
+        Collections.sort(top100, new Comparator<Recipe>() {
+            @Override
+            public int compare(Recipe r1, Recipe r2) {
+                return Double.compare(r2.getAverageRating(), r1.getAverageRating());
+            }
+        });
+//        if (top100.size() > 100) {
+//            top100 = new ArrayList<>(top100.subList(0, 100));
+//        }
+        top100Recipes = top100;
+        top100RecipeAdapter.Update(top100Recipes);
     }
 
     private void fetchMediaForRecipe(Recipe recipe) {
@@ -179,7 +219,7 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
                 recipeUsers.put(recipe.getUserId(),user);
-                future.complete(null);
+                fetchMediaForUser(future,user);
             }
 
             @Override
@@ -188,11 +228,8 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
             }
         });
     }
-    private void fetchMediaForUser(User user) {
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        userFutures.add(future);
-
-        if (user.getMediaId() == null ||
+    private void fetchMediaForUser(CompletableFuture<Void> future,User user) {
+        if (user.getMediaId() == null || user.getMediaId().isEmpty() ||
                 (userMedias.containsKey(user.getId()) && userMedias.get(user.getId()) != null)) {
             future.complete(null);
             return;
@@ -218,7 +255,7 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
                 recipes.clear();
                 for (DataSnapshot recipeSnapshot:snapshot.getChildren()) {
                     Recipe recipe = recipeSnapshot.getValue(Recipe.class);
-                    if (!recipe.isPublic()) continue;
+                    if (!recipe.isPublic() || recipe.isStatus()) continue;
                     recipes.add(recipe);
                     fetchMediaForRecipe(recipe);
                     fetchUserForRecipe(recipe);
@@ -246,7 +283,9 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
                     User user = userSnapshot.getValue(User.class);
                     if (user.getAccountType() != 1) continue;
                     users.add(user);
-                    fetchMediaForUser(user);
+                    CompletableFuture<Void> future = new CompletableFuture<>();
+                    userFutures.add(future);
+                    fetchMediaForUser(future,user);
                 }
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(userFutures.toArray(new CompletableFuture[0]));
                 allOf.thenRun(() -> {

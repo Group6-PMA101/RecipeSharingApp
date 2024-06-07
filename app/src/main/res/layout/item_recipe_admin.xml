@@ -2,18 +2,18 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:paddingRight="12dp"
+    android:paddingBottom="12dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <LinearLayout
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
         <RelativeLayout
-            android:layout_width="280dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <com.google.android.material.imageview.ShapeableImageView
-                android:layout_width="280dp"
-                android:layout_height="180dp"
+                android:layout_width="match_parent"
+                android:layout_height="120dp"
                 android:src="@color/white_1C1"
                 android:id="@+id/img_recipe_thumbnail"
                 app:shapeAppearance="@style/rounded_corner_12"
@@ -67,7 +67,7 @@
                     android:padding="6dp"/>
             </LinearLayout>
             <RelativeLayout
-                android:id="@+id/btn_save"
+                android:id="@+id/btn_more"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
                 android:layout_marginTop="6dp"
@@ -80,7 +80,7 @@
                     android:layout_centerInParent="true"
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:background="@drawable/ic_bookmark"
+                    android:background="@drawable/ic_more"
                     android:backgroundTint="@color/black_333"/>
             </RelativeLayout>
         </RelativeLayout>
@@ -100,15 +100,10 @@
                 android:textColor="@color/black_333"
                 android:ellipsize="end"
                 android:singleLine="true"/>
-<!--            <ImageView-->
-<!--                android:layout_width="20dp"-->
-<!--                android:layout_height="20dp"-->
-<!--                android:backgroundTint="@color/black_333"-->
-<!--                android:background="@drawable/ic_more"/>-->
         </LinearLayout>
         <LinearLayout
             android:layout_marginTop="12dp"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical">
@@ -121,8 +116,7 @@
             <TextView
                 android:id="@+id/tv_recipe_owner"
                 android:layout_marginLeft="12dp"
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="User"
                 android:fontFamily="@font/be_vietnam_pro_regular"

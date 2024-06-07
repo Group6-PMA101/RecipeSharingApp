@@ -56,12 +56,14 @@ public class RecyclerViewPopularCreatorsAdapter extends RecyclerView.Adapter<Rec
         User user = users.get(position);
         if (user != null) {
             holder.tv_user_name.setText(user.getName());
-            if (homeFragment.userMedias.containsKey(user.getId())) {
+            if (user.getMediaId() != null && !user.getMediaId().isEmpty()) {
                 Glide.with(context).
                         load(homeFragment.userMedias.get(user.getId()).getUrl()).
                         error(R.drawable.default_avatar).
                         placeholder(R.drawable.default_avatar).
                         into(holder.img_avatar_user);
+            } else {
+                holder.img_avatar_user.setImageResource(R.drawable.default_avatar);
             }
             holder.pb_load_img.setVisibility(View.GONE);
         }

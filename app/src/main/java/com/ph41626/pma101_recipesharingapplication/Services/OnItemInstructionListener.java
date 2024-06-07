@@ -9,5 +9,6 @@ public interface OnItemInstructionListener {
     void removeItemInstruction(int position,Instruction instruction);
     void removeItemMedia(String mediaId,Instruction instruction,int pos);
     void chooseImage(Instruction instruction,int pos);
+    void imageViewDetail(String url);
     ArrayList<Media> getMedias();
 }

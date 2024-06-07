@@ -257,7 +257,7 @@ public class RecipeCollectionActivity extends AppCompatActivity {
         if (recipeMedia == null) recipeMedia = new HashMap<>();
         if (recipeRecipeCollections == null) recipeRecipeCollections = new ArrayList<>();
     }
-    public void Remove(Recipe recipe) {
+    public void Remove(int pos) {
         List<CompletableFuture<Void>> futures = new ArrayList<>();
         CompletableFuture<Void> deleteFuture = new CompletableFuture<>();
         futures.add(deleteFuture);
@@ -266,10 +266,7 @@ public class RecipeCollectionActivity extends AppCompatActivity {
 
         recipeCollection.setNumberOfRecipes(recipeCollection.getNumberOfRecipes() - 1);
 
-        Recipe_RecipeCollection recipeRecipeCollection = recipeRecipeCollections.stream()
-                .filter(rrCollection -> rrCollection.getRecipeId().equals(recipe.getId()))
-                .findFirst()
-                .orElse(null);
+        Recipe_RecipeCollection recipeRecipeCollection = recipeRecipeCollections.get(pos);
 
 
         FirebaseDatabase
@@ -291,7 +288,7 @@ public class RecipeCollectionActivity extends AppCompatActivity {
 
         CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
         allOf.thenRun(() -> {
-            recipes.remove(recipe);
+            recipes.remove(pos);
             recipeRecipeCollections.remove(recipeRecipeCollection);
             recipeCollectionDetailAdapter.Update(recipes);
         }).exceptionally(e -> {

@@ -4,36 +4,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.NotificationsFragment">
+    tools:context=".Fragment.AdminFragment">
 
+    <!-- TODO: Update blank fragment layout -->
+<!--    <TextView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:text="@string/hello_blank_fragment" />-->
     <LinearLayout
-        android:padding="24dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Notification"
-            android:fontFamily="@font/be_vietnam_pro_semibold"
-            android:textSize="24.sp"
-            android:textColor="@color/black_333"/>
         <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottomNavigationViewNotification"
+            android:id="@+id/bottomNavigationViewAdmin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
             android:background="@color/transparent"
+            app:itemIconTint="@color/white_9A9"
             app:itemTextColor="@drawable/bottom_navigation_recipe_text_color"
             app:itemBackground="@color/transparent"
             android:outlineAmbientShadowColor="@color/transparent"
             android:outlineSpotShadowColor="@color/transparent"
-            app:labelVisibilityMode="labeled"
-            app:menu="@menu/bottom_navigation_notification_menu"/>
+            app:menu="@menu/bottom_navigation_admin_menu"/>
         <androidx.viewpager2.widget.ViewPager2
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:id="@+id/viewPager2_recipe"/>
     </LinearLayout>
+
+
 </FrameLayout>

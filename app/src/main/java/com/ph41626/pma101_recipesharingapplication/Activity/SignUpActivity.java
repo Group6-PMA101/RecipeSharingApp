@@ -23,11 +23,15 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.ph41626.pma101_recipesharingapplication.Adapter.AccountTypeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.R;
+
+import java.util.List;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -71,33 +75,53 @@ public class SignUpActivity extends AppCompatActivity {
 
         if (!ValidateForm(name,email,password)) return;
 
+
         User newUser = new User(RandomID(),name,email,password,role);
 
-        progressDialog = new ProgressDialog(this,R.style.AppCompatAlertDialogStyle);
+        progressDialog = new ProgressDialog(SignUpActivity.this,R.style.AppCompatAlertDialogStyle);
         progressDialog.setMessage("Please wait...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.createUserWithEmailAndPassword(email,password)
+                .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                        databaseReference.child(newUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(SignUpActivity.this, "Create account successful!", Toast.LENGTH_SHORT).show();
-//                                    Intent i = new Intent(SignUpActivity.this, SignInActivity.class);
-//                                    startActivity(i);
-                                    finish();
-                                } else {
-                                    Toast.makeText(SignUpActivity.this, "Failed to create account!" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        if (task.isSuccessful()) {
+                            databaseReference.child(newUser.getId()).setValue(newUser).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        Toast.makeText(SignUpActivity.this, "Create account successful!", Toast.LENGTH_SHORT).show();
+                                        Intent i = new Intent(SignUpActivity.this, SignInActivity.class);
+                                        startActivity(i);
+                                        finish();
+                                    } else {
+                                        Toast.makeText(SignUpActivity.this, "Failed to create account!" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                    progressDialog.dismiss();
                                 }
-                                progressDialog.dismiss();
+                            });
+                        } else {
+                            try {
+                                throw task.getException();
+                            } catch (FirebaseAuthUserCollisionException e) {
+                                Toast.makeText(getApplicationContext(), "Email is already registered.", Toast.LENGTH_LONG).show();
+                            } catch (Exception e) {
+                                Toast.makeText(SignUpActivity.this, "Failed to create account!" + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
-                        });
+                            progressDialog.dismiss();
+                        }
+
                     }
                 });
+//        mAuth.createUserWithEmailAndPassword(email, password)
+//                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//
+//                    }
+//                });
     }
     private boolean ValidateForm(String name, String email, String password) {
         if (!ValidateField(name, "Name", nameEditText)) return false;

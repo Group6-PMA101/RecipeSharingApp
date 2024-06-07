@@ -1,14 +1,33 @@
 package com.ph41626.pma101_recipesharingapplication.Fragment;
 
+import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
+
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
+import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
+import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationAdminAdapter;
+import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationNotificationAdapter;
+import com.ph41626.pma101_recipesharingapplication.Model.Notification;
+import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
+
+import java.util.ArrayList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -56,11 +75,80 @@ public class NotificationsFragment extends Fragment {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
+    public ViewPager2 viewPager2_recipe;
+    private ViewModel viewModel;
+    private BottomNavigationView bottomNavigationView;
+    private ArrayList<Notification> notifications = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_notifications, container, false);
+        View view = inflater.inflate(R.layout.fragment_notifications, container, false);
+
+        initUI(view);
+        BottomNavigationManager();
+        fetNotificationForUser();
+
+        return view;
+    }
+
+    private void fetNotificationForUser() {
+        new FirebaseUtils().getAllDataByKeyRealTime(MainActivity.REALTIME_NOTIFICATIONS, "userId", GetUser(getContext()).getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                notifications.clear();
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    Notification notification = child.getValue(Notification.class);
+                    notifications.add(notification);
+                }
+
+                viewModel.changeNotificationForUser(notifications);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void BottomNavigationManager() {
+        ViewPagerBottomNavigationNotificationAdapter bottomNavigationAdapter = new ViewPagerBottomNavigationNotificationAdapter(getActivity());
+        viewPager2_recipe.setAdapter(bottomNavigationAdapter);
+        bottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                if(item.getItemId() == R.id.allNotification) {
+                    viewPager2_recipe.setCurrentItem(0);
+                } else if(item.getItemId() == R.id.unreadNotification) {
+                    viewPager2_recipe.setCurrentItem(1);
+                } else if(item.getItemId() == R.id.readNotification) {
+                    viewPager2_recipe.setCurrentItem(2);
+                }
+                return true;
+            }
+        });
+        viewPager2_recipe.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                switch (position) {
+                    case 0:
+                        bottomNavigationView.setSelectedItemId(R.id.allNotification);
+                        break;
+                    case 1:
+                        bottomNavigationView.setSelectedItemId(R.id.unreadNotification);
+                        break;
+                    case 2:
+                        bottomNavigationView.setSelectedItemId(R.id.readNotification);
+                        break;
+                }
+            }
+        });
+    }
+    private void initUI(View view) {
+        viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
+        viewPager2_recipe = view.findViewById(R.id.viewPager2_recipe);
+        bottomNavigationView = view.findViewById(R.id.bottomNavigationViewNotification);
     }
 }

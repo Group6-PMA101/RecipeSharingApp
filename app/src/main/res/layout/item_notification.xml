@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="12dp">
+    <LinearLayout
+        android:padding="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@drawable/cus_bgr_rounded_corner_16"
+        android:backgroundTint="@color/white_1F1">
+        <RelativeLayout
+            android:background="@drawable/cus_bgr_rounded_corner_10"
+            android:backgroundTint="@color/green_CD7"
+            android:layout_width="28dp"
+            android:layout_height="28dp">
+            <ImageView
+                android:layout_centerInParent="true"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:background="@drawable/ic_file"
+                android:backgroundTint="@color/green_F56"/>
+        </RelativeLayout>
+        <LinearLayout
+            android:layout_marginLeft="12dp"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_marginRight="12dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/tv_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="New Recipe!"
+                android:fontFamily="@font/be_vietnam_pro_semibold"
+                android:textColor="@color/black_333"/>
+            <TextView
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:id="@+id/tv_content"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Far far away, behind the word mountains, far from the countries."
+                android:fontFamily="@font/be_vietnam_pro_regular"
+                android:textColor="@color/white_9A9"/>
+        </LinearLayout>
+        <ImageView
+            android:id="@+id/img_status"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
+            android:background="@drawable/cus_bgr_rounded_corner_10"
+            android:backgroundTint="@color/red_E3E"/>
+    </LinearLayout>
+</RelativeLayout>

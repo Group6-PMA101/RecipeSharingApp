@@ -62,6 +62,10 @@ public class RecyclerViewRecipeCollectionAdapter extends RecyclerView.Adapter<Re
 
                 for(int i = 0;i < 2; i++) {
                     Recipe recipe = recipes.get(i);
+                    if (recipe == null){
+                        holder.img_recipe_collection_sub.setVisibility(View.GONE);
+                        continue;
+                    }
                     Media media = savedRecipesFragment.mainActivity.recipeMedia.get(recipe.getId());
 
                     if (i == 0) {

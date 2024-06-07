@@ -8,31 +8,29 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.ph41626.pma101_recipesharingapplication.Fragment.AdminFragment;
 import com.ph41626.pma101_recipesharingapplication.Fragment.CreateRecipeFragment;
 import com.ph41626.pma101_recipesharingapplication.Fragment.HomeFragment;
+import com.ph41626.pma101_recipesharingapplication.Fragment.ManageRecipesFragment;
+import com.ph41626.pma101_recipesharingapplication.Fragment.ManageUserFragment;
 import com.ph41626.pma101_recipesharingapplication.Fragment.NotificationsFragment;
 import com.ph41626.pma101_recipesharingapplication.Fragment.ProfileFragment;
 import com.ph41626.pma101_recipesharingapplication.Fragment.SavedRecipesFragment;
 
-public class ViewPagerBottomNavigationMainAdapter extends FragmentStateAdapter {
+public class ViewPagerBottomNavigationAdminAdapter extends FragmentStateAdapter {
 
-    public ViewPagerBottomNavigationMainAdapter(@NonNull FragmentActivity fragmentActivity) {
+    public ViewPagerBottomNavigationAdminAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
     @NonNull
     @Override
     public Fragment createFragment(int position) {
         switch (position) {
-            case 0: return new HomeFragment();
-            case 1: return new SavedRecipesFragment();
-            case 2: return new CreateRecipeFragment();
-            case 3: return new NotificationsFragment();
-            case 4: return new ProfileFragment();
-            case 5: return new AdminFragment();
+            case 0: return new ManageRecipesFragment();
+            case 1: return new ManageUserFragment();
             default:break;
         }
-        return new HomeFragment();
+        return new ManageRecipesFragment();
     }
     @Override
     public int getItemCount() {
-        return 6;
+        return 2;
     }
 }

@@ -67,6 +67,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.Services.ImageDialogUtil;
 import com.ph41626.pma101_recipesharingapplication.Services.OnItemIngredientListener;
 import com.ph41626.pma101_recipesharingapplication.Services.OnItemInstructionListener;
 
@@ -626,6 +627,11 @@ public class CreateRecipeFragment extends Fragment {
                     @Override
                     public void chooseImage(Instruction instruction, int pos) {
                         ChooseImage(instruction,pos);
+                    }
+
+                    @Override
+                    public void imageViewDetail(String url) {
+                        new ImageDialogUtil().ShowVideoDialog(getContext(),url);
                     }
 
                     @Override

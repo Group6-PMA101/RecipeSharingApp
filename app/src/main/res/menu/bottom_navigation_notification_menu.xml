@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/allNotification"
+        android:title="All"
+        android:background="@drawable/bottom_nav_item_background_selector"
+        app:showAsAction="never"/>
+    <item
+        android:id="@+id/unreadNotification"
+        android:title="Unread"
+        app:showAsAction="never"
+        android:background="@drawable/bottom_nav_item_background_selector"/>
+    <item
+        android:id="@+id/readNotification"
+        android:title="Read"
+        app:showAsAction="never"
+        android:background="@drawable/bottom_nav_item_background_selector"/>
+</menu>

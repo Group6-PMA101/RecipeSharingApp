@@ -142,6 +142,95 @@
                 android:background="@color/white_9A9"/>
             <LinearLayout
                 android:layout_marginHorizontal="24dp"
+                android:id="@+id/btn_serves"
+                android:paddingHorizontal="12dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="24dp"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/cus_bgr_rounded_corner_16"
+                android:backgroundTint="@color/white_1F1">
+                <LinearLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/cus_bgr_rounded_corner_10">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/ic_profile"
+                        android:backgroundTint="@color/red_E00"/>
+
+                </LinearLayout>
+                <TextView
+                    android:layout_marginLeft="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Serves"
+                    android:fontFamily="@font/be_vietnam_pro_semibold"
+                    android:textColor="@color/black_333"
+                    android:textSize="16sp"/>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+                <TextView
+                    android:id="@+id/tv_serves"
+                    android:layout_marginLeft="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="01"
+                    android:fontFamily="@font/be_vietnam_pro_regular"
+                    android:textColor="@color/black_333"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginHorizontal="24dp"
+                android:id="@+id/btn_cook_time"
+                android:paddingHorizontal="12dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:background="@drawable/cus_bgr_rounded_corner_16"
+                android:backgroundTint="@color/white_1F1">
+                <LinearLayout
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/cus_bgr_rounded_corner_10">
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@drawable/ic_clock"
+                        android:backgroundTint="@color/red_E00"/>
+                </LinearLayout>
+                <TextView
+                    android:layout_marginLeft="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cook time"
+                    android:fontFamily="@font/be_vietnam_pro_semibold"
+                    android:textColor="@color/black_333"
+                    android:textSize="16sp"/>
+                <RelativeLayout
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"/>
+                <TextView
+                    android:id="@+id/tv_cook_time"
+                    android:layout_marginLeft="12dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 min"
+                    android:fontFamily="@font/be_vietnam_pro_regular"
+                    android:textColor="@color/black_333"
+                    android:textSize="16sp"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginHorizontal="24dp"
                 android:gravity="center_vertical"
                 android:layout_marginTop="24dp"
                 android:layout_marginBottom="12dp"

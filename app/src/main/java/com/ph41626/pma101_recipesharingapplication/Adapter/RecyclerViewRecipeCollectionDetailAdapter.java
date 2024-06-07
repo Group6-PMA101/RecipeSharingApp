@@ -1,11 +1,14 @@
 package com.ph41626.pma101_recipesharingapplication.Adapter;
 
+import static android.view.View.GONE;
+
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -59,14 +62,8 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
     public void onBindViewHolder(@NonNull RecyclerViewRecipeCollectionDetailAdapter.ViewHolder holder, int position) {
         Recipe recipe = recipes.get(position);
         if (recipe != null) {
-            holder.btn_more.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    PopupMenu(view,recipe);
-                }
-            });
-            if (!recipe.isPublic()) {
-                holder.tv_recipe_name.setText("This recipe has been hidden or deleted by the user.");
+            if (!recipe.isPublic() || recipe.isStatus()) {
+                HideItem(holder);
                 return;
             }
             holder.tv_recipe_name.setText(recipe.getName());
@@ -78,14 +75,29 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
                     error(R.drawable.caption).
                     placeholder(R.drawable.caption).
                     into(holder.img_recipe_thumbnail);
-            holder.pb_load_img.setVisibility(View.GONE);
-
+            holder.pb_load_img.setVisibility(GONE);
+            holder.btn_more.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu(view,holder.getAdapterPosition());
+                }
+            });
             holder.itemView.setOnClickListener(v -> {
                 recipeCollectionActivity.RecipeDetail(recipe);
             });
+        } else {
+           HideItem(holder);
         }
     }
-    private void PopupMenu(View view, Recipe recipe) {
+    private void HideItem(ViewHolder holder) {
+        holder.layout_hide.setVisibility(View.VISIBLE);
+        holder.tv_recipe_unshare.setText("This recipe has been hidden or deleted by the user.");
+        holder.layout_main.setVisibility(GONE);
+        holder.btn_remove.setOnClickListener(v -> {
+            PopupMenu(v,holder.getAdapterPosition());
+        });
+    }
+    private void PopupMenu(View view, int pos) {
         PopupMenu popupMenu = new PopupMenu(context, view);
         List<String> menuItems = getMenuItems();
         for (String menuItem : menuItems) {
@@ -94,7 +106,7 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
         popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                handleMenuItemClick(item, recipe);
+                handleMenuItemClick(item, pos);
                 return true;
             }
         });
@@ -107,9 +119,9 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
         return menuItems;
     }
 
-    private void handleMenuItemClick(MenuItem item, Recipe recipe) {
+    private void handleMenuItemClick(MenuItem item, int pos) {
         if (item.getTitle().equals("Delete")) {
-            recipeCollectionActivity.Remove(recipe);
+            recipeCollectionActivity.Remove(pos);
         }
     }
     @Override
@@ -121,18 +133,24 @@ public class RecyclerViewRecipeCollectionDetailAdapter extends RecyclerView.Adap
         TextView
                 tv_recipe_name,
                 tv_recipe_averageRating,
-                tv_cook_time;
+                tv_cook_time,
+                tv_recipe_unshare;
         ImageView img_recipe_thumbnail;
         ProgressBar pb_load_img;
-        RelativeLayout btn_more;
+        RelativeLayout btn_more,layout_main,btn_remove;
+        LinearLayout layout_hide;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             tv_recipe_name = itemView.findViewById(R.id.tv_recipe_name);
             tv_recipe_averageRating = itemView.findViewById(R.id.tv_recipe_averageRating);
             tv_cook_time = itemView.findViewById(R.id.tv_cook_time);
+            tv_recipe_unshare = itemView.findViewById(R.id.tv_recipe_unshare);
             img_recipe_thumbnail = itemView.findViewById(R.id.img_recipe_thumbnail);
             pb_load_img = itemView.findViewById(R.id.pb_load_img);
             btn_more = itemView.findViewById(R.id.btn_more);
+            btn_remove = itemView.findViewById(R.id.btn_remove);
+            layout_main = itemView.findViewById(R.id.layout_main);
+            layout_hide = itemView.findViewById(R.id.layout_hide);
         }
     }
 }

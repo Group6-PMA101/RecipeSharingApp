@@ -18,6 +18,10 @@ public class FirebaseUtils {
         DatabaseReference reference = database.getReference(path);
         reference.addListenerForSingleValueEvent(listener);
     }
+    public void getDataFromFirebaseRealtime(String path, ValueEventListener listener) {
+        DatabaseReference reference = database.getReference(path);
+        reference.addValueEventListener(listener);
+    }
     public void getAllDataByKey(String path, String key, String value, ValueEventListener listener) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference(path);
         Query query = reference.orderByChild(key).equalTo(value);

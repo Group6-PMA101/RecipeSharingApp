@@ -32,13 +32,17 @@ public class RecyclerViewTop100RecipeAdapter extends RecyclerView.Adapter<Recycl
     }
     public void AddLoadingPlaceholders() {
         recipes.clear();
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 10; i++) {
             recipes.add(null);
         }
         notifyDataSetChanged();
     }
     public void Update(ArrayList<Recipe> recipes) {
-        this.recipes = recipes;
+        if (recipes.size() > 10) {
+            this.recipes = new ArrayList<>(recipes.subList(0, 10));
+        } else {
+            this.recipes = recipes;
+        }
         notifyDataSetChanged();
     }
     @NonNull

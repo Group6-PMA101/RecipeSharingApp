@@ -189,7 +189,7 @@ public class RateRecipeActivity extends AppCompatActivity {
         tv_user_name.setText(user.getName());
 
         if (user.getMediaId() != null && !user.getMediaId().isEmpty()) {
-            new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, user.getId(), new ValueEventListener() {
+            new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     media = snapshot.getValue(Media.class);

@@ -88,6 +88,9 @@ public class RecyclerViewInstructionAdapter extends RecyclerView.Adapter<Recycle
                 View view = LayoutInflater.from(context).inflate(R.layout.item_instruction_thumbnail,null,false);
                 ImageView img = view.findViewById(R.id.img_thumbnail);
                 LinearLayout btn_remove_thumbnail = view.findViewById(R.id.btn_remove_thumbnail);
+                img.setOnClickListener(v -> {
+                    itemInstructionListener.imageViewDetail(media.getUrl());
+                });
                 btn_remove_thumbnail.setOnClickListener(v -> {
                     itemInstructionListener.removeItemMedia(mediaId,instruction,holder.getAdapterPosition());
 //                    createRecipeFragment.RemoveItemThumbnail(mediaId,instruction,holder.getAdapterPosition());

@@ -52,6 +52,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.UserFollower;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
+import com.ph41626.pma101_recipesharingapplication.Services.ImageDialogUtil;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 
@@ -72,8 +73,12 @@ public class RecipeDetailActivity extends AppCompatActivity {
             layout_comments,
             btn_play,
             btn_send_comment,
-            btn_rate_recipe;
+            btn_rate_recipe,
+            btn_serves,
+            btn_cook_time;
     private TextView
+            tv_cook_time,
+            tv_serves,
             tv_recipe_name,
             tv_averageRating,
             tv_review_count,
@@ -86,7 +91,7 @@ public class RecipeDetailActivity extends AppCompatActivity {
             tv_most_recent_update;
     private Button btn_follow,btn_show_more;
     private EditText edt_input_comment;
-    private ImageView img_thumbnail_recipe,img_user_avatar;
+    private ImageView img_thumbnail_recipe,img_user_avatar,img_my_avatar;
     private Recipe recipe = new Recipe();
     private Media recipeMedia = new Media();
     private User recipeOwner = new User();
@@ -208,6 +213,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
             ShowVideoDialog(this,recipeMedia.getUrl());
         });
         btn_rate_recipe.setOnClickListener(v -> {
+            if (GetUser(this).getId().equals(recipeOwner.getId())) {
+                Toast.makeText(this, "You cannot evaluate your own recipe.", Toast.LENGTH_SHORT).show();
+                return;
+            }
             Intent intent = new Intent(this, RateRecipeActivity.class);
             intent.putExtra("recipe",recipe);
             startActivityForResult(intent,REQUEST_CODE_ACTIVITY_BACK);
@@ -241,7 +250,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
             ResizeLayoutComment();
         });
     }
-
+    public void ShowImageDetail(String url) {
+        new ImageDialogUtil().ShowVideoDialog(this,url);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -293,8 +304,18 @@ public class RecipeDetailActivity extends AppCompatActivity {
         String most_recent_update = dateFormat.format(recipe.getLastUpdateDate());
         tv_most_recent_update.setText("Most Recent Update: " + most_recent_update);
 
+        if (recipe.getServings() > 0) {
+            tv_serves.setText(String.valueOf(recipe.getServings()));
+        } else
+            btn_serves.setVisibility(View.GONE);
+        if (recipe.getCookTime() > 0) {
+            tv_cook_time.setText(String.valueOf(recipe.getCookTime()) + "min");
+        } else
+            btn_cook_time.setVisibility(View.GONE);
+
+
         if (isVideo(recipeMedia.getUrl())) btn_play.setVisibility(View.VISIBLE);
-        else btn_play.setVisibility(GONE);
+        else btn_play.setVisibility(View.GONE);
 
         Glide.with(this)
                 .asBitmap()
@@ -377,7 +398,9 @@ public class RecipeDetailActivity extends AppCompatActivity {
                                 .placeholder(R.drawable.caption)
                                 .error(R.drawable.caption)
                                 .into(img);
-
+                        img.setOnClickListener(v -> {
+                            ShowImageDetail(media.getUrl());
+                        });
                         layout_image.addView(viewThumbnail);
                     }
                 }
@@ -652,13 +675,31 @@ public class RecipeDetailActivity extends AppCompatActivity {
     private void GetData() {
         Intent intent = getIntent();
         recipe = (Recipe) intent.getSerializableExtra("recipe");
-        Log.e("Check get data recipe",recipe.toString());
         recipeMedia = (Media) intent.getSerializableExtra("recipeMedia");
         recipeOwner = (User) intent.getSerializableExtra("recipeOwner");
         ownerMedia = (Media) intent.getSerializableExtra("userMedia");
         ingredients = (ArrayList<Ingredient>) intent.getSerializableExtra("ingredients");
         instructions = (ArrayList<Instruction>) intent.getSerializableExtra("instructions");
         instructionMedias = (ArrayList<Media>) intent.getSerializableExtra("instructionMedias");
+        if (GetUser(this).getMediaId() != null && !GetUser(this).getMediaId().isEmpty()) {
+            new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, GetUser(this).getMediaId(), new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Media media = snapshot.getValue(Media.class);
+                    Glide.with(RecipeDetailActivity.this)
+                            .asBitmap()
+                            .load(media.getUrl())
+                            .error(R.drawable.default_avatar)
+                            .placeholder(R.drawable.default_avatar)
+                            .into(img_my_avatar);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
     }
     public static void setRecipeDetailEventListener(RecipeDetailEventListener listener) {
         eventListener = listener;
@@ -683,10 +724,15 @@ public class RecipeDetailActivity extends AppCompatActivity {
         tv_comment_status = findViewById(R.id.tv_comment_status);
         tv_most_recent_update = findViewById(R.id.tv_most_recent_update);
         tv_creation_date = findViewById(R.id.tv_creation_date);
+        tv_serves = findViewById(R.id.tv_serves);
+        tv_cook_time = findViewById(R.id.tv_cook_time);
 
         img_thumbnail_recipe = findViewById(R.id.img_thumbnail_recipe);
         img_user_avatar = findViewById(R.id.img_user_avatar);
+        img_my_avatar = findViewById(R.id.img_my_avatar);
 
+        btn_cook_time = findViewById(R.id.btn_cook_time);
+        btn_serves = findViewById(R.id.btn_serves);
         btn_follow = findViewById(R.id.btn_follow);
         btn_play = findViewById(R.id.btn_play);
         btn_send_comment = findViewById(R.id.btn_send_comment);

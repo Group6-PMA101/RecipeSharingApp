@@ -170,7 +170,7 @@ public class SignInActivity extends AppCompatActivity {
             emailEditText.setError("Email cannot be empty!");
             return false;
         }
-        String emailPattern = "[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,4}";
+        String emailPattern = "[a-zA-Z0-9._]+@[a-zA-Z0-9.]+\\.[a-zA-Z]{2,4}";
 
         if (!email.matches(emailPattern)) {
             emailEditText.setError("Invalid email address");
@@ -210,9 +210,9 @@ public class SignInActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(SignInActivity.this, "Email đặt lại mật khẩu đã được gửi", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SignInActivity.this, "Password reset email sent successfully.", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(SignInActivity.this, "Gửi email thất bại: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(SignInActivity.this, "Failed to send password reset email.", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
