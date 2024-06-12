@@ -17,10 +17,10 @@
         android:theme="@style/Theme.PMA101RecipeSharingApplication"
         tools:targetApi="31">
         <activity
-            android:name=".SearchActivity"
+            android:name=".Activity.SearchActivity"
             android:exported="false" />
         <activity
-            android:name=".SeeAllRecipeActivity"
+            android:name=".Activity.SeeAllRecipeActivity"
             android:exported="false" />
         <activity
             android:name=".Activity.RecipeCollectionActivity"

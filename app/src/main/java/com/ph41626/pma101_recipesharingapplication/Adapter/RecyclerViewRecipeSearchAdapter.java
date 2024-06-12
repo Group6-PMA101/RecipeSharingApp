@@ -8,7 +8,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,7 +23,7 @@ import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.R;
-import com.ph41626.pma101_recipesharingapplication.SearchActivity;
+import com.ph41626.pma101_recipesharingapplication.Activity.SearchActivity;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 
 import java.util.ArrayList;
@@ -88,9 +87,9 @@ public class RecyclerViewRecipeSearchAdapter extends RecyclerView.Adapter<Recycl
 //                    seeAllRecipeActivity.SaveRecipe(recipe);
 //                }
 //            });
-//            holder.itemView.setOnClickListener(v -> {
-//                seeAllRecipeActivity.RecipeDetail(recipe);
-//            });
+            holder.itemView.setOnClickListener(v -> {
+                searchActivity.RecipeDetail(recipe);
+            });
         }
     }
 

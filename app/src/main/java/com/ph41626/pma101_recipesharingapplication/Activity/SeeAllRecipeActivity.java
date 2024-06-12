@@ -1,4 +1,4 @@
-package com.ph41626.pma101_recipesharingapplication;
+package com.ph41626.pma101_recipesharingapplication.Activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,6 +18,7 @@ import com.ph41626.pma101_recipesharingapplication.Adapter.RecyclerViewSeeAllAda
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
+import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.MainActivityEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;

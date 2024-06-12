@@ -19,9 +19,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -44,21 +42,18 @@ import com.ph41626.pma101_recipesharingapplication.Model.Recipe_RecipeCollection
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
-import com.ph41626.pma101_recipesharingapplication.SearchActivity;
-import com.ph41626.pma101_recipesharingapplication.SeeAllRecipeActivity;
+import com.ph41626.pma101_recipesharingapplication.Activity.SearchActivity;
+import com.ph41626.pma101_recipesharingapplication.Activity.SeeAllRecipeActivity;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Services.MainActivityEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
-
-import org.checkerframework.checker.units.qual.A;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -147,8 +142,10 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         edt_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                startActivity(new Intent(getContext(), SearchActivity.class));
-
+                if (b) {
+                    edt_search.clearFocus();
+                    startActivity(new Intent(getContext(), SearchActivity.class));
+                }
             }
         });
         btn_see_all_trending.setOnClickListener(v -> {

@@ -313,15 +313,36 @@ public class RecipeDetailActivity extends AppCompatActivity {
         } else
             btn_cook_time.setVisibility(View.GONE);
 
+        if (recipeMedia == null) {
+            new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, recipe.getMediaId(), new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    Media media = snapshot.getValue(Media.class);
+                    recipeMedia = media;
+                    if (isVideo(recipeMedia.getUrl())) btn_play.setVisibility(View.VISIBLE);
+                    else btn_play.setVisibility(View.GONE);
+                    Glide.with(RecipeDetailActivity.this)
+                            .asBitmap()
+                            .load(recipeMedia.getUrl())
+                            .error(R.drawable.caption)
+                            .into(img_thumbnail_recipe);
+                }
 
-        if (isVideo(recipeMedia.getUrl())) btn_play.setVisibility(View.VISIBLE);
-        else btn_play.setVisibility(View.GONE);
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
 
-        Glide.with(this)
-                .asBitmap()
-                .load(recipeMedia.getUrl())
-                .error(R.drawable.caption)
-                .into(img_thumbnail_recipe);
+                }
+            });
+        } else {
+            if (isVideo(recipeMedia.getUrl())) btn_play.setVisibility(View.VISIBLE);
+            else btn_play.setVisibility(View.GONE);
+            Glide.with(this)
+                    .asBitmap()
+                    .load(recipeMedia.getUrl())
+                    .error(R.drawable.caption)
+                    .into(img_thumbnail_recipe);
+        }
+
 
         tv_averageRating.setText(String.valueOf(recipe.getAverageRating()));
         if (recipe.getTotalReviews() == 0) {
