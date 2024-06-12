@@ -111,6 +111,7 @@
                     android:background="@drawable/cus_bgr_rounded_corner_16"
                     android:backgroundTint="@color/white_000">
                     <ImageView
+                        android:id="@+id/icon_more"
                         android:layout_centerInParent="true"
                         android:layout_width="16dp"
                         android:layout_height="16dp"

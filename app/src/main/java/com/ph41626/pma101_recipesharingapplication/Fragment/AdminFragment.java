@@ -489,7 +489,7 @@ public class AdminFragment extends Fragment {
     private void ShowUnlockConfirmationDialogUser(User user) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
         builder.setTitle("Unlock Recipe");
-        builder.setMessage("Are you sure you want to unlock this recipe?\n\nPlease ensure that this action complies with platform policies.");
+            builder.setMessage("Are you sure you want to unlock this recipe?\n\nPlease ensure that this action complies with platform policies.");
 
         builder.setPositiveButton("Unlock", new DialogInterface.OnClickListener() {
             @Override

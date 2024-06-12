@@ -116,7 +116,7 @@ public class RecyclerViewRecipeTrendingAdapter extends RecyclerView.Adapter<Recy
                 }
             });
             holder.btn_save.setOnClickListener(v -> {
-                homeFragment.SaveRecipe(recipe);
+                homeFragment.SaveRecipe(context,recipe);
             });
         }
     }

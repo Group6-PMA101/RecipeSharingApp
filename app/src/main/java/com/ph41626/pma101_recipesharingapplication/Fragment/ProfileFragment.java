@@ -472,7 +472,7 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
         }
     }
     private void UpdateUi(User user) {
-        if (user.getMediaId() == null) {
+        if (user.getMediaId() == null || user.getMediaId().isEmpty()) {
             img_avatar_user.setImageResource(R.drawable.default_avatar);
         } else {
             new FirebaseUtils().getDataFromFirebaseById(REALTIME_MEDIAS, user.getMediaId(), new ValueEventListener() {

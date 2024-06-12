@@ -58,7 +58,7 @@ public class RecyclerViewRecipeCollectionAdapter extends RecyclerView.Adapter<Re
             if (recipeCollection.getNumberOfRecipes() >= 2) {
                 holder.img_recipe_collection_sub.setVisibility(View.VISIBLE);
                 ArrayList<Recipe> recipes = savedRecipesFragment.mainActivity.recipeForRecipeCollection.get(recipeCollection.getId());
-                Log.e("Check data collection",recipeCollection.toString());
+//                Log.e("Check data collection",recipeCollection.toString());
 
                 for(int i = 0;i < 2; i++) {
                     Recipe recipe = recipes.get(i);

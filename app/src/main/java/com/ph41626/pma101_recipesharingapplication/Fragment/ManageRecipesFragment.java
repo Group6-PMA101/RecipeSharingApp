@@ -114,9 +114,9 @@ public class ManageRecipesFragment extends Fragment {
             tv_noti.setVisibility(View.GONE);
     }
     private void ShowSortDialog() {
-        String[] items = {"All Recipes", "Locked Recipes", "Unlocked Recipes"};
+        String[] items = {"All Recipes", "Locked Recipes", "Unlocked Recipes", "Newest Creation Date", "Oldest Creation Date"};
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),R.style.CustomAlertDialogTheme);
         builder.setTitle("Sort");
 
         builder.setSingleChoiceItems(items, sortItemIndex, new DialogInterface.OnClickListener() {
@@ -138,6 +138,12 @@ public class ManageRecipesFragment extends Fragment {
                         break;
                     case 2:
                         UnlockRecipes();
+                        break;
+                    case 3:
+                        NewestCreationDate();
+                        break;
+                    case 4:
+                        OldestCreationDate();
                         break;
                 }
                 dialog.dismiss();
@@ -168,6 +174,23 @@ public class ManageRecipesFragment extends Fragment {
     private void UnlockRecipes() {
         currentRecipes = (ArrayList<Recipe>) getRecipes.stream()
                 .filter(recipe -> !recipe.isStatus())
+                .collect(Collectors.toList());
+        Noti();
+        recipeAdminAdapter.Update(currentRecipes);
+    }
+    private void NewestCreationDate() {
+        currentRecipes = (ArrayList<Recipe>) getRecipes.stream()
+                .filter(recipe -> !recipe.isStatus())
+                .sorted((r1, r2) -> r2.getCreationDate().compareTo(r1.getCreationDate()))
+                .collect(Collectors.toList());
+        Noti();
+        recipeAdminAdapter.Update(currentRecipes);
+    }
+
+    private void OldestCreationDate() {
+        currentRecipes = (ArrayList<Recipe>) getRecipes.stream()
+                .filter(recipe -> !recipe.isStatus())
+                .sorted((r1, r2) -> r1.getCreationDate().compareTo(r2.getCreationDate()))
                 .collect(Collectors.toList());
         Noti();
         recipeAdminAdapter.Update(currentRecipes);

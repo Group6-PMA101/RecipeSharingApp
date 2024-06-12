@@ -21,6 +21,7 @@
                 android:textSize="24.sp"
                 android:textColor="@color/black_333"/>
             <EditText
+                android:id="@+id/edt_search"
                 android:layout_marginTop="24dp"
                 android:layout_width="match_parent"
                 android:layout_height="44dp"
@@ -51,6 +52,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"/>
                 <Button
+                    android:id="@+id/btn_see_all_trending"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/transparent"
@@ -84,6 +86,7 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"/>
                 <Button
+                    android:id="@+id/btn_see_all_top100"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@color/transparent"
@@ -116,17 +119,18 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"/>
-                <Button
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@color/transparent"
-                    android:text="See all"
-                    android:drawableEnd="@drawable/ic_arrow_right"
-                    android:textAllCaps="false"
-                    android:textColor="@color/red_E00"
-                    android:fontFamily="@font/be_vietnam_pro_semibold"
-                    android:drawableTint="@color/red_E00"
-                    android:drawablePadding="-6dp"/>
+<!--                <Button-->
+<!--                    android:id="@+id/btn_see_all_popular_creator"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:background="@color/transparent"-->
+<!--                    android:text="See all"-->
+<!--                    android:drawableEnd="@drawable/ic_arrow_right"-->
+<!--                    android:textAllCaps="false"-->
+<!--                    android:textColor="@color/red_E00"-->
+<!--                    android:fontFamily="@font/be_vietnam_pro_semibold"-->
+<!--                    android:drawableTint="@color/red_E00"-->
+<!--                    android:drawablePadding="-6dp"/>-->
             </LinearLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"

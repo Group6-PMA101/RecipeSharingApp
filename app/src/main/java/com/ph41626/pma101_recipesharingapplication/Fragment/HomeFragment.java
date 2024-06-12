@@ -7,6 +7,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +24,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -41,7 +44,10 @@ import com.ph41626.pma101_recipesharingapplication.Model.Recipe_RecipeCollection
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
+import com.ph41626.pma101_recipesharingapplication.SearchActivity;
+import com.ph41626.pma101_recipesharingapplication.SeeAllRecipeActivity;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
+import com.ph41626.pma101_recipesharingapplication.Services.MainActivityEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeDetailEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.RecipeEventListener;
 
@@ -60,7 +66,7 @@ import java.util.concurrent.CompletableFuture;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements RecipeDetailEventListener, RecipeEventListener {
+public class HomeFragment extends Fragment implements RecipeDetailEventListener, RecipeEventListener, MainActivityEventListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -101,7 +107,8 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
     }
-
+    private EditText edt_search;
+    private Button btn_see_all_popular_creator,btn_see_all_trending,btn_see_all_top100;
     private RecyclerView rcv_trending,rcv_top_100_recipe,rcv_popular_creators;
     private RecyclerViewRecipeTrendingAdapter recipeTrendingAdapter;
     private RecyclerViewTop100RecipeAdapter top100RecipeAdapter;
@@ -131,8 +138,41 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         RecyclerViewManager();
         GetDataFromFirebase();
         UpdateUiWhenDataChange();
+        SetUpButton();
 
         return view;
+    }
+
+    private void SetUpButton() {
+        edt_search.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                startActivity(new Intent(getContext(), SearchActivity.class));
+
+            }
+        });
+        btn_see_all_trending.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SeeAllRecipeActivity.class);
+            intent.putExtra("recipes",trendingRecipes);
+            intent.putExtra("mediaForRecipes",recipeMedias);
+            intent.putExtra("users",recipeUsers);
+            intent.putExtra("mediaForUsers",userMedias);
+            SeeAllRecipeActivity.setMainActivityEventListener(this);
+            startActivity(intent);
+        });
+        btn_see_all_top100.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), SeeAllRecipeActivity.class);
+            intent.putExtra("recipes",top100Recipes);
+            intent.putExtra("mediaForRecipes",recipeMedias);
+            intent.putExtra("users",recipeUsers);
+            intent.putExtra("mediaForUsers",userMedias);
+            SeeAllRecipeActivity.setMainActivityEventListener(this);
+            startActivity(intent);
+        });
+//        btn_see_all_popular_creator.setOnClickListener(v -> {
+//
+//        });
+
     }
 
     private void UpdateUiWhenDataChange() {
@@ -318,9 +358,13 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
         return recipeRecipeCollections.stream()
                 .anyMatch(rrCollection -> rrCollection.getRecipeId().equals(recipeId));
     }
-    public void SaveRecipe(Recipe recipe) {
+    public void SaveRecipe(Context context, Recipe recipe) {
         if (!mainActivity.recipeCollectionFuture.isDone()) {
-            Toast.makeText(mainActivity, "You are performing actions too quickly. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "You are performing actions too quickly. Please try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (mainActivity.recipeCollections == null || mainActivity.recipeCollections.isEmpty()) {
+            Toast.makeText(context, "You should create a list of recipes before saving a recipe.", Toast.LENGTH_SHORT).show();
             return;
         }
         String[] collectionNames = new String[mainActivity.recipeCollections.size()];
@@ -335,7 +379,7 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
                 checkedItems[i] = false;
             }
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Select Recipe Collection")
                 .setMultiChoiceItems(collectionNames, checkedItems, new DialogInterface.OnMultiChoiceClickListener() {
                     @Override
@@ -448,9 +492,15 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
     }
 
     private void initUI(View view) {
+        btn_see_all_top100 = view.findViewById(R.id.btn_see_all_top100);
+        btn_see_all_trending = view.findViewById(R.id.btn_see_all_trending);
+//        btn_see_all_popular_creator = view.findViewById(R.id.btn_see_all_popular_creator);
+
         rcv_trending = view.findViewById(R.id.rcv_trending);
         rcv_top_100_recipe = view.findViewById(R.id.rcv_top_100_recipe);
         rcv_popular_creators = view.findViewById(R.id.rcv_popular_creators);
+
+        edt_search = view.findViewById(R.id.edt_search);
 
         viewModel = new ViewModelProvider(requireActivity()).get(ViewModel.class);
         firebaseUtils = new FirebaseUtils();
@@ -472,5 +522,10 @@ public class HomeFragment extends Fragment implements RecipeDetailEventListener,
                 break;
             }
         }
+    }
+
+    @Override
+    public void onSavedRecipe(Context context,Recipe recipe) {
+        SaveRecipe(context,recipe);
     }
 }

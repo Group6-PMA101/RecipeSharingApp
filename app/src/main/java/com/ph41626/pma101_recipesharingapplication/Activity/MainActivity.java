@@ -1,5 +1,6 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
+import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
 import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.ClearUser;
 import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
 
@@ -45,7 +46,9 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
 
 import javax.crypto.BadPaddingException;
@@ -159,27 +162,16 @@ public class MainActivity extends AppCompatActivity {
         new FirebaseUtils().getAllDataByKeyRealTime(REALTIME_RECIPE_COLLECTIONS, "userId", GetUser(this).getId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                recipeCollections.clear();
-                recipeRecipeCollectionHashMap.clear();
-                recipeForRecipeCollection.clear();
-                recipeMedia.clear();
-                recipeCollectionFutures.clear();
-
-                for (DataSnapshot child:snapshot.getChildren()) {
-                    RecipeCollection recipeCollection = child.getValue(RecipeCollection.class);
-                    recipeCollections.add(recipeCollection);
-                    if (recipeCollection != null && recipeCollection.getNumberOfRecipes() > 0) {
-                        CompletableFuture<Void> future = new CompletableFuture<>();
-                        recipeCollectionFutures.add(future);
-                        fetchRecipeRecipeCollection(future,recipeCollection);
-                    }
-                }
-                recipeCollectionFuture.complete(null);
-                viewModel.changeRecipeCollectionForUser(recipeCollections);
+                GetRecipeForRecipeCollection(snapshot);
 
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(recipeCollectionFutures.toArray(new CompletableFuture[0]));
                 allOf.thenRun(() -> {
                     viewModel.changeRecipeForRecipeCollection(recipeForRecipeCollection);
+                    for (RecipeCollection recipeCollection:recipeCollections) {
+                        int index1 = recipeRecipeCollectionHashMap.get(recipeCollection.getId()).size();
+                        int index2 = recipeForRecipeCollection.get(recipeCollection.getId()).size();
+
+                    }
                 }).exceptionally(e -> {
                     e.printStackTrace();
                     return null;
@@ -192,6 +184,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    private void GetRecipeForRecipeCollection(DataSnapshot snapshot) {
+        recipeRecipeCollectionHashMap.clear();
+        recipeForRecipeCollection.clear();
+        recipeMedia.clear();
+        recipeCollectionFutures.clear();
+
+        for (DataSnapshot child:snapshot.getChildren()) {
+            RecipeCollection recipeCollection = child.getValue(RecipeCollection.class);
+            recipeCollections.add(recipeCollection);
+            if (recipeCollection != null && recipeCollection.getNumberOfRecipes() > 0) {
+                CompletableFuture<Void> future = new CompletableFuture<>();
+                recipeCollectionFutures.add(future);
+                fetchRecipeRecipeCollection(future,recipeCollection);
+            }
+        }
+        recipeCollectionFuture.complete(null);
+        viewModel.changeRecipeCollectionForUser(recipeCollections);
+    }
 
     private void fetchRecipeRecipeCollection(CompletableFuture<Void> future,RecipeCollection recipeCollection) {
         new FirebaseUtils().getAllDataByKey(REALTIME_RECIPE_RECIPECOLLECTIONS, "recipeCollectionId", recipeCollection.getId(), new ValueEventListener() {
@@ -203,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
                     recipeRecipeCollections.add(recipeRecipeCollection);
                 }
                 recipeRecipeCollectionHashMap.put(recipeCollection.getId(),recipeRecipeCollections);
-
+                Log.e("Check app recipe RECIPE_RECIPECOLLECTIONS",recipeRecipeCollections.size() + "");
                 List<CompletableFuture<Void>> mediaFutures = new ArrayList<>();
                 for (Recipe_RecipeCollection recipeRecipeCollection:recipeRecipeCollections) {
                     CompletableFuture<Void> mediaFuture = new CompletableFuture<>();
@@ -231,14 +241,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Recipe recipe = snapshot.getValue(Recipe.class);
-                ArrayList<Recipe> newArr = new ArrayList<>();
-                if (recipeForRecipeCollection.containsKey(recipeCollection.getId())
-                        && recipeForRecipeCollection.get(recipeCollection.getId()) != null
-                        && !recipeForRecipeCollection.get(recipeCollection.getId()).isEmpty()) {
-                    newArr = recipeForRecipeCollection.get(recipeCollection.getId());
-                }
+//                ArrayList<Recipe> newArr = new ArrayList<>();
+//                if (recipeForRecipeCollection.containsKey(recipeCollection.getId())
+//                        && recipeForRecipeCollection.get(recipeCollection.getId()) != null
+//                        && !recipeForRecipeCollection.get(recipeCollection.getId()).isEmpty()) {
+//                    newArr = recipeForRecipeCollection.get(recipeCollection.getId());
+//                }
+                ArrayList<Recipe> newArr = recipeForRecipeCollection.computeIfAbsent(recipeCollection.getId(), k -> new ArrayList<>());
                 newArr.add(recipe);
                 recipeForRecipeCollection.put(recipeCollection.getId(),newArr);
+//                Toast.makeText(MainActivity.this, recipeCollection.getName() + newArr.size(), Toast.LENGTH_SHORT).show();
                 fetchMediaForRecipe(future,recipe);
             }
 
