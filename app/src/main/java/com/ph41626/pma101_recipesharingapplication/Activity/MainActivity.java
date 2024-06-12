@@ -209,13 +209,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 notifications.clear();
-//                boolean newNoti = false;
+                int newNotiCount = 0;
                 for (DataSnapshot child:snapshot.getChildren()) {
                     Notification notification = child.getValue(Notification.class);
-//                    if (notification.isStatus())
+                    if (!notification.isStatus()) newNotiCount++;
                     notifications.add(notification);
                 }
 
+                if (newNotiCount != 0) {
+                    bottom_navigation_main.setCount(3, String.valueOf(newNotiCount));
+                } else {
+                    bottom_navigation_main.clearCount(3);
+                }
                 viewModel.changeNotificationForUser(notifications);
             }
 

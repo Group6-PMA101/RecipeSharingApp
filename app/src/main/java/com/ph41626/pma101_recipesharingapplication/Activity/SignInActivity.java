@@ -149,12 +149,12 @@ public class SignInActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onCancelled(@NonNull DatabaseError error) {
-                                    Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(SignInActivity.this, "Email or password incorrect.", Toast.LENGTH_SHORT).show();
                                     progressDialog.dismiss();
                                 }
                             });
                         } else {
-                            Toast.makeText(SignInActivity.this, "Login failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignInActivity.this, "Email or password incorrect.", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                         }
                     }
