@@ -27,6 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationMainAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
+import com.ph41626.pma101_recipesharingapplication.Model.Notification;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.RecipeCollection;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe_RecipeCollection;
@@ -97,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseUtils firebaseUtils;
     private ViewModel viewModel;
-
+    private ArrayList<Notification> notifications = new ArrayList<>();
     public ArrayList<RecipeCollection> recipeCollections = new ArrayList<>();
     public HashMap<String,ArrayList<Recipe_RecipeCollection>> recipeRecipeCollectionHashMap = new HashMap<>();
     public HashMap<String,ArrayList<Recipe>> recipeForRecipeCollection = new HashMap<>();
@@ -116,6 +117,7 @@ public class MainActivity extends AppCompatActivity {
 //        GetDataFromFireBase();
         fetchRecipeCollectionForUser();
         LockAccount();
+        fetchNotificationForUser();
 
         recipeCollectionFuture.thenAccept(result -> {
 //            if (recipeCollections != null && !recipeCollections.isEmpty()) {
@@ -202,7 +204,27 @@ public class MainActivity extends AppCompatActivity {
         recipeCollectionFuture.complete(null);
         viewModel.changeRecipeCollectionForUser(recipeCollections);
     }
+    private void fetchNotificationForUser() {
+        new FirebaseUtils().getAllDataByKeyRealTime(MainActivity.REALTIME_NOTIFICATIONS, "userId", GetUser(this).getId(), new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                notifications.clear();
+//                boolean newNoti = false;
+                for (DataSnapshot child:snapshot.getChildren()) {
+                    Notification notification = child.getValue(Notification.class);
+//                    if (notification.isStatus())
+                    notifications.add(notification);
+                }
 
+                viewModel.changeNotificationForUser(notifications);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     private void fetchRecipeRecipeCollection(CompletableFuture<Void> future,RecipeCollection recipeCollection) {
         new FirebaseUtils().getAllDataByKey(REALTIME_RECIPE_RECIPECOLLECTIONS, "recipeCollectionId", recipeCollection.getId(), new ValueEventListener() {
             @Override

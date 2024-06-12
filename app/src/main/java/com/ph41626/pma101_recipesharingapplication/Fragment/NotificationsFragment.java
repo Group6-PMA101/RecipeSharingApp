@@ -20,7 +20,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
-import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationAdminAdapter;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationNotificationAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Notification;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
@@ -78,7 +77,6 @@ public class NotificationsFragment extends Fragment {
     public ViewPager2 viewPager2_recipe;
     private ViewModel viewModel;
     private BottomNavigationView bottomNavigationView;
-    private ArrayList<Notification> notifications = new ArrayList<>();
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -87,29 +85,8 @@ public class NotificationsFragment extends Fragment {
 
         initUI(view);
         BottomNavigationManager();
-        fetNotificationForUser();
 
         return view;
-    }
-
-    private void fetNotificationForUser() {
-        new FirebaseUtils().getAllDataByKeyRealTime(MainActivity.REALTIME_NOTIFICATIONS, "userId", GetUser(getContext()).getId(), new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                notifications.clear();
-                for (DataSnapshot child:snapshot.getChildren()) {
-                    Notification notification = child.getValue(Notification.class);
-                    notifications.add(notification);
-                }
-
-                viewModel.changeNotificationForUser(notifications);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
 
     private void BottomNavigationManager() {

@@ -29,7 +29,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -39,6 +41,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -48,6 +51,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.ph41626.pma101_recipesharingapplication.Activity.EditProfileActivity;
 import com.ph41626.pma101_recipesharingapplication.Activity.MainActivity;
+import com.ph41626.pma101_recipesharingapplication.Activity.SignInActivity;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationRecipeAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
@@ -59,6 +63,7 @@ import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.EditProfileEventListener;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Activity.UpdateRecipeActivity;
+import com.ph41626.pma101_recipesharingapplication.Services.UserPreferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,6 +119,7 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
     }
     private Button btn_edit_profile;
     private ImageView img_avatar_user;
+    private ImageButton btn_more;
     private TextView tv_name_user, tv_recipes_count_user, tv_follower_count_user, tv_following_count_user;
     private MainActivity mainActivity;
     private ViewModel viewModel;
@@ -144,12 +150,61 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
         UpdateUiWhenDataChange();
         BottomNavigationManager();
 
+        btn_more.setOnClickListener(v -> {
+            PopupMenu(v);
+        });
         btn_edit_profile.setOnClickListener(v -> {
             Intent intent = new Intent(getContext(), EditProfileActivity.class);
             EditProfileActivity.setEditProfileEventListener(this);
             startActivity(intent);
         });
         return view;
+    }
+    private void PopupMenu(View view) {
+        PopupMenu popupMenu = new PopupMenu(getContext(), view);
+        List<String> menuItems = getMenuItems();
+        for (String menuItem : menuItems) {
+            popupMenu.getMenu().add(menuItem);
+        }
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                handleMenuItemClick(item);
+                return true;
+            }
+        });
+        popupMenu.show();
+    }
+
+    private List<String> getMenuItems() {
+        List<String> menuItems = new ArrayList<>();
+        menuItems.add("Log out");
+        return menuItems;
+    }
+
+    private void handleMenuItemClick(MenuItem item) {
+        if (item.getTitle().equals("Log out")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Log Out");
+            builder.setMessage("Are you sure you want to log out?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    UserPreferences.ClearUser(getContext());
+                    FirebaseAuth.getInstance().signOut();
+                    Intent intent = new Intent(getActivity(), SignInActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                }
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
     }
 
     @Override
@@ -505,6 +560,7 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
     }
     private void initUI(View view) {
         btn_edit_profile = view.findViewById(R.id.btn_edit_profile);
+        btn_more = view.findViewById(R.id.btn_more);
         storageReference = FirebaseStorage.getInstance().getReference(STORAGE_MEDIAS);
         databaseReferenceMedias = FirebaseDatabase.getInstance().getReference(REALTIME_MEDIAS);
         databaseReferenceIngredients = FirebaseDatabase.getInstance().getReference(REALTIME_INGREDIENTS);

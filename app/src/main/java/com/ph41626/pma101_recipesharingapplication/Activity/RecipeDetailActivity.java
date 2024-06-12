@@ -6,6 +6,7 @@ import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INGREDIENTS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INSTRUCTIONS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
+import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_NOTIFICATIONS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_RECIPES;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_USERS;
 import static com.ph41626.pma101_recipesharingapplication.Services.Services.findObjectById;
@@ -38,6 +39,8 @@ import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -47,6 +50,7 @@ import com.ph41626.pma101_recipesharingapplication.Model.Comment;
 import com.ph41626.pma101_recipesharingapplication.Model.Ingredient;
 import com.ph41626.pma101_recipesharingapplication.Model.Instruction;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
+import com.ph41626.pma101_recipesharingapplication.Model.Notification;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.UserFollower;
@@ -154,14 +158,40 @@ public class RecipeDetailActivity extends AppCompatActivity {
 
                     recipeOwner.setFollowersCount(recipeOwner.getFollowersCount() + 1);
                     user.setFollowingCount(user.getFollowingCount() + 1);
+                    int followersCount = recipeOwner.getFollowersCount();
+                    if (followersCount == 10 ||
+                            followersCount == 100 ||
+                            followersCount == 1000 ||
+                            followersCount == 10000 ||
+                            followersCount == 1000000) {
+                        String title = "Congratulations!";
+                        String content = "Dear " + recipeOwner.getName() + "," +
+                                "\n\nCongratulations on reaching " + followersCount +" followers! Your commitment to learning is truly inspiring, and your growing following reflects the impact you're making. Keep up the fantastic work!";
+                        Notification notification = new Notification(recipeOwner.getId(),title,content);
+                        FirebaseDatabase
+                                .getInstance()
+                                .getReference(REALTIME_NOTIFICATIONS)
+                                .child(notification.getId())
+                                .setValue(notification)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+
+                                    }
+                                });
+                    }
                     FirebaseDatabase
                             .getInstance()
                             .getReference(REALTIME_FOLLOWERS)
                             .child(userFollower.getId())
                             .setValue(userFollower)
                             .addOnCompleteListener(task -> {
+
                                 addFollower.complete(null);
                             });
+
+
+
                 } else {
                     recipeOwner.setFollowersCount(recipeOwner.getFollowersCount() - 1);
                     user.setFollowingCount(user.getFollowingCount() - 1);
