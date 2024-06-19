@@ -1,6 +1,7 @@
 package com.ph41626.pma101_recipesharingapplication.Fragment;
 
 import static android.app.Activity.RESULT_OK;
+import static androidx.core.content.ContextCompat.registerReceiver;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INGREDIENTS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_INSTRUCTIONS;
 import static com.ph41626.pma101_recipesharingapplication.Activity.MainActivity.REALTIME_MEDIAS;
@@ -10,8 +11,11 @@ import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferenc
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -31,6 +35,7 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -64,6 +69,7 @@ import com.ph41626.pma101_recipesharingapplication.Services.EditProfileEventList
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
 import com.ph41626.pma101_recipesharingapplication.Activity.UpdateRecipeActivity;
 import com.ph41626.pma101_recipesharingapplication.Services.UserPreferences;
+import com.ph41626.pma101_recipesharingapplication.UserListActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,6 +129,7 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
     private TextView tv_name_user, tv_recipes_count_user, tv_follower_count_user, tv_following_count_user;
     private MainActivity mainActivity;
     private ViewModel viewModel;
+    private LinearLayout show_follower,show_following;
     public ArrayList<Recipe> recipes = new ArrayList<>();
     private User currentUser = new User();
     private Media currentMedia = new Media();
@@ -140,6 +147,7 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
             databaseReferenceIngredients,
             databaseReferenceInstructions,
             databaseReferenceRecipes;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -158,8 +166,19 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
             EditProfileActivity.setEditProfileEventListener(this);
             startActivity(intent);
         });
+        show_follower.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), UserListActivity.class);
+            intent.putExtra("type",true);
+            startActivity(intent);
+        });
+        show_following.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity(), UserListActivity.class);
+            intent.putExtra("type",false);
+            startActivity(intent);
+        });
         return view;
     }
+
     private void PopupMenu(View view) {
         PopupMenu popupMenu = new PopupMenu(getContext(), view);
         List<String> menuItems = getMenuItems();
@@ -559,6 +578,8 @@ public class ProfileFragment extends Fragment implements EditProfileEventListene
         }
     }
     private void initUI(View view) {
+        show_follower = view.findViewById(R.id.show_follower);
+        show_following = view.findViewById(R.id.show_following);
         btn_edit_profile = view.findViewById(R.id.btn_edit_profile);
         btn_more = view.findViewById(R.id.btn_more);
         storageReference = FirebaseStorage.getInstance().getReference(STORAGE_MEDIAS);

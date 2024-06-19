@@ -186,7 +186,6 @@ public class RecipeDetailActivity extends AppCompatActivity {
                             .child(userFollower.getId())
                             .setValue(userFollower)
                             .addOnCompleteListener(task -> {
-
                                 addFollower.complete(null);
                             });
 
@@ -222,14 +221,15 @@ public class RecipeDetailActivity extends AppCompatActivity {
                         .getReference(REALTIME_USERS)
                         .child(user.getId())
                         .child("followingCount")
-                        .setValue(recipeOwner.getFollowersCount())
+                        .setValue(user.getFollowingCount())
                         .addOnCompleteListener(task -> {
-                            SaveUser(RecipeDetailActivity.this,user);
                             changeUser.complete(null);
                         });
                 CompletableFuture<Void> allOf = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
                 allOf.thenRun(() -> {
                     SaveUser(RecipeDetailActivity.this,user);
+                    Intent intent = new Intent("com.example.USER_DATA_CHANGED");
+                    sendBroadcast(intent);
                     tv_user_follower.setText("Follower " + recipeOwner.getFollowersCount());
                     eventListener.onFollowEvent(recipe.getUserId(),recipeOwner);
                     checkChefFollower(progressDialog);
@@ -469,6 +469,10 @@ public class RecipeDetailActivity extends AppCompatActivity {
         checkChefFollower(null);
     }
     private void checkChefFollower(ProgressDialog progressDialog) {
+        if (recipeOwner.getId().equals(GetUser(RecipeDetailActivity.this).getId())) {
+            btn_follow.setText("Follow");
+            return;
+        }
         new FirebaseUtils().getAllDataByKey(REALTIME_FOLLOWERS, "userId", GetUser(this).getId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

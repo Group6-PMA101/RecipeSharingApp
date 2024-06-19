@@ -1,16 +1,15 @@
 package com.ph41626.pma101_recipesharingapplication.Activity;
 
-import static com.ph41626.pma101_recipesharingapplication.Services.Services.RandomID;
-import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.ClearUser;
 import static com.ph41626.pma101_recipesharingapplication.Services.UserPreferences.GetUser;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -19,11 +18,9 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.etebarian.meowbottomnavigation.MeowBottomNavigation;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.ph41626.pma101_recipesharingapplication.Adapter.ViewPagerBottomNavigationMainAdapter;
 import com.ph41626.pma101_recipesharingapplication.Model.Media;
@@ -31,32 +28,15 @@ import com.ph41626.pma101_recipesharingapplication.Model.Notification;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe;
 import com.ph41626.pma101_recipesharingapplication.Model.RecipeCollection;
 import com.ph41626.pma101_recipesharingapplication.Model.Recipe_RecipeCollection;
-import com.ph41626.pma101_recipesharingapplication.Model.User;
 import com.ph41626.pma101_recipesharingapplication.Model.ViewModel;
 import com.ph41626.pma101_recipesharingapplication.R;
 import com.ph41626.pma101_recipesharingapplication.Services.FirebaseUtils;
+import com.ph41626.pma101_recipesharingapplication.Services.UserPreferences;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -126,6 +106,25 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //            }
         });
+        IntentFilter filter = new IntentFilter("com.example.USER_DATA_CHANGED");
+        registerReceiver(userChangeReceiver, filter);
+    }
+    private BroadcastReceiver userChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // User data has changed
+            updateUser();
+        }
+    };
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister the receiver
+        unregisterReceiver(userChangeReceiver);
+    }
+
+    private void updateUser() {
+        viewModel.changeCurrentUser(UserPreferences.GetUser(this));
     }
     public boolean LockAccount() {
         if (GetUser(this).isStatus()) {
@@ -160,24 +159,30 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+    private Handler handler = new Handler();
+    private Runnable debounceRunnable;
+    private static final long DEBOUNCE_DELAY = 500;
     private void fetchRecipeCollectionForUser() {
         new FirebaseUtils().getAllDataByKeyRealTime(REALTIME_RECIPE_COLLECTIONS, "userId", GetUser(this).getId(), new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                GetRecipeForRecipeCollection(snapshot);
+//                GetRecipeForRecipeCollection(snapshot);
+                handler.removeCallbacks(debounceRunnable);
+                debounceRunnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        GetRecipeForRecipeCollection(snapshot);
 
-                CompletableFuture<Void> allOf = CompletableFuture.allOf(recipeCollectionFutures.toArray(new CompletableFuture[0]));
-                allOf.thenRun(() -> {
-                    viewModel.changeRecipeForRecipeCollection(recipeForRecipeCollection);
-                    for (RecipeCollection recipeCollection:recipeCollections) {
-                        int index1 = recipeRecipeCollectionHashMap.get(recipeCollection.getId()).size();
-                        int index2 = recipeForRecipeCollection.get(recipeCollection.getId()).size();
-
+                        CompletableFuture<Void> allOf = CompletableFuture.allOf(recipeCollectionFutures.toArray(new CompletableFuture[0]));
+                        allOf.thenRun(() -> {
+                            viewModel.changeRecipeForRecipeCollection(recipeForRecipeCollection);
+                        }).exceptionally(e -> {
+                            e.printStackTrace();
+                            return null;
+                        });
                     }
-                }).exceptionally(e -> {
-                    e.printStackTrace();
-                    return null;
-                });
+                };
+                handler.postDelayed(debounceRunnable, DEBOUNCE_DELAY);
             }
 
             @Override
@@ -190,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
         recipeRecipeCollectionHashMap.clear();
         recipeForRecipeCollection.clear();
         recipeMedia.clear();
+        recipeCollections.clear();
         recipeCollectionFutures.clear();
 
         for (DataSnapshot child:snapshot.getChildren()) {
@@ -262,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void fetchRecipeForRecipeCollection(CompletableFuture<Void> future,RecipeCollection recipeCollection,Recipe_RecipeCollection recipeRecipeCollection) {
         new FirebaseUtils().getDataFromFirebaseById(REALTIME_RECIPES, recipeRecipeCollection.getRecipeId(), new ValueEventListener() {
             @Override
@@ -287,7 +292,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void fetchMediaForRecipe(CompletableFuture<Void> future, Recipe recipe) {
         if (recipe == null) {
             future.complete(null);
@@ -307,7 +311,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-
     private void GetDataFromFireBase() {
         FirebaseUtils firebaseUtils = new FirebaseUtils();
 
